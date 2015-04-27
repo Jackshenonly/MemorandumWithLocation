@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0, width=device-width"/>
+        <title>api</title>
+        <link rel="stylesheet" type="text/css" href="./css/api.css" />
+        <link rel="stylesheet" type="text/css" href="./css/common.css" />
+        <link rel="stylesheet" type="text/css" href="./css/index.css" />
+        <style>
+			/*会话消息容器*/
+			#messageList {
+				padding: 15px 0;
+				overflow: hidden;
+			}
+			/*接收消息类，左侧*/
+			.receiver {
+				clear: both;
+			}
+			.receiver .receiver-avatar {
+				float: left;
+			}
+			.receiver .receiver-avatar img {
+				width: 50px;
+				height: 50px;
+			}
+			.receiver .receiver-cont {
+				background-color: #faff72;
+				float: left;
+				margin: 0 20px 10px 15px;
+				padding: 10px;
+				border-radius: 7px;
+				max-width: 60%;
+				position: relative;
+			}
+			.receiver .status {
+				width: 30px;
+				height: 30px;
+				position: absolute;
+				right: -35px;
+				top: 3px;
+			}
+			/*发送消息类，右侧*/
+			.sender {
+				clear: both;
+			}
+			.sender .status {
+				width: 30px;
+				height: 30px;
+				position: absolute;
+				left: -35px;
+				top: 3px;
+				font-size: 18px;
+				font-weight: 700;
+				color: #990000;
+			}
+			.sender .status img {
+				width: 30px;
+				height: 30px;
+			}
+			.sender .sender-avatar {
+				float: right;
+			}
+			.sender .sender-avatar img {
+				width: 50px;
+				height: 50px;
+			}
+			.sender .sender-cont {
+				float: right;
+				background-color: #15b5e9;
+				margin: 0 10px 10px 20px;
+				padding: 10px;
+				border-radius: 7px;
+				color: #ffffff;
+				max-width: 60%;
+				position: relative;
+			}
+			.left_triangle {
+				height: 0px;
+				width: 0px;
+				border-width: 8px;
+				border-style: solid;
+				border-color: transparent #faff72 transparent transparent;
+				position: absolute;
+				left: -16px;
+				top: 6px;
+			}
+			.right_triangle {
+				height: 0px;
+				width: 0px;
+				border-width: 8px;
+				border-style: solid;
+				border-color: transparent transparent transparent #15b5e9;
+				position: absolute;
+				right: -16px;
+				top: 6px;
+			}
+        </style>
+    </head>
+    <body>
+        <div id="wrap">
+            <div id="messageList">
+                <div class="sender">
+                    <div class="sender-avatar">
+                        <img src="chatTemplateExample2_files/cat.jpg">
+                    </div>
+                    <div class="sender-cont">
+                        <div class="right_triangle"></div>
+                        <span><img src="发送用户头像" width="30" height="30">发送内容</span>
+                        <div class="status">
+                            <!--发送状态-->
+                        </div>
+                    </div>
+                </div>
+                <div class="receiver">
+                    <div class="receiver-avatar">
+                        <img src="对方用户头像">
+                    </div>
+                    <div class="receiver-cont">
+                        <div class="left_triangle"></div>
+                        <span>发送内容</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
