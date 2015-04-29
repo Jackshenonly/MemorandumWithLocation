@@ -1,6 +1,24 @@
 function myalert(){
 alert("你点击了图片");
 }
+function publish(){
+	var uid = $api.getStorage('uid');
+		if(!uid){
+			api.openWin({
+		        name: 'userLogin',
+		        url: './userLogin.html',
+		        opaque: true,
+		        vScrollBarEnabled:false
+		    });
+		    return;
+		}
+
+	api.openWin({
+		name: 'act-publish',
+		url: './act-publish.html'
+	});
+	
+}
 
 function initSlide() {
     var slide = $api.byId('slide');
@@ -138,14 +156,14 @@ function getBanner(id) {
 
 function act_selecter(){
 	
-	var type = ['全部','娱乐','运动',"学习","拼桌","电影"];
+	var type = ['全部','娱乐','运动',"学习","拼桌","电影","游戏"];
 	api.actionSheet({
     title: '选择活动类型',
     cancelTitle: '取消',
     //destructiveTitle: '红色警告按钮',
     buttons: type
 },function(ret,err){
-	if(ret.buttonIndex==7)
+	if(ret.buttonIndex==8)
 	{}
 	else {
 	var result = $api.byId("result");

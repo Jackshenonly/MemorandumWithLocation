@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from __future__ import with_statement
 from config import load_config #绝对导入
 import MySQLdb
@@ -179,9 +179,24 @@ def pwd_modify():
     else :
         return "0"
 
+@app.route('/act_publish',methods=['POST','GET'])
+def act_publish():
+    act_name = request.args.get('act_name')
+    publisher = request.args.get('publisher')
+    details = request.args.get('details')
+    location = request.args.get('location')
+    act_time = request.args.get('act_time')
+    pub_time = time.strftime("%Y-%m-%d %H:%M:%S")
+    act_type = request.args.get('type')
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('insert into activity(act_name,publisher,details,location,act_time,pub_time,type) \
+        values (%s,%s,%s,%s,%s,%s,%s)',
+        [act_name,publisher,details,location,act_time,pub_time,act_type])
+    db.commit()
+    return "1"
 
-
-@app.route('/logout')
+@app.route('/logout',methods=['POST','GET'])
 def logout():
     session['username']=None
     username = request.args.get('username')

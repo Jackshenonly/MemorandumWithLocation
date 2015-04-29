@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0, width=device-width"/>
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="format-detection" content="address=no" />
+        <title>api</title>
+        <link rel="stylesheet" type="text/css" href="../css/api.css" />
+        <link rel="stylesheet" type="text/css" href="../css/common.css" />
+        <link rel="stylesheet" type="text/css" href="../css/act-publish.css" />
+    </head>
+    <body>
+        <div id="wrap">
+            <div id="header">
+                <a class="back-icon" tapmode="" onclick="api.closeWin()"></a>
+                <h1>发起活动</h1>
+            </div>
+            <div id="main">
+                <div class="input-wrap">
+                    <table>
+                        <tr>
+                            <td>活动名：</td>
+                            <td>
+                            <input type="text" placeholder="活动名称" class="txt" id="act_name" value="" />
+                            <i class="del" tapmode="" onclick="delWord(this)"></i></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id = "filter"   onclick="act_selecter()" class="input-wrap">
+                    <table>
+                        <tr>
+                            <td>活动类型:</td>
+                            <!-- <td><img src="../image/menu.png"/></td>-->
+                            <td><label id = "type" class="txt">点击选择类型</label></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="input-wrap">
+                    <table>
+                        <tr>
+                            <td>时间：</td>
+                            <td><label id="act_time" class="txt" onclick="setTime()">选取时间</label></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="input-wrap">
+                    <table>
+                        <tr>
+                            <td>地点：</td>
+                            <td>
+                            <input id="location" placeholder="活动地点" class="txt" />
+                            <i class="del" tapmode="" onclick="delWord(this)"></i></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="input-wrap last">
+                    其他说明：                     <textarea placeholder="其他说明" rows="5" cols="20" class="details" id="details" value="" ></textarea>
+                    <i class="del" tapmode="" onclick="delWord(this)"></i>
+                </div>
+                <a class="btn" tapmode="active" onclick="commit()">发起活动</a>
+            </div>
+            <!--<textarea rows="5" cols="20" ></textarea>-->
+        </div>
+    </body>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/common.js"></script>
+    <script type="text/javascript" src="../script/modifyPwd.js"></script>
+    <script>
+    
+    var type="";
+    var act_time="";
+		function setTime() {
+			var time = $api.byId('act_time');
+			//time.innerHTML = "2015-12";
+			var obj = api.require('timeSelector');
+			obj.open({
+				x : (api.frameWidth - 300) / 2,
+				y : 30,
+				width : 300,
+				height : 200
+			}, function(ret, err) {
+				var hour = ret.hour;
+				var minit = ret.minit;
+				act_time = ret.hour + ":" + ret.minit+":00";
+				time.innerHTML = act_time;
+				
+			});
+		}
+
+		function act_selecter() {
+			var atype = ['娱乐', '运动', "学习", "拼桌", "电影","游戏"];
+			api.actionSheet({
+				title : '选择活动类型',
+				cancelTitle: '我再想想',
+				//destructiveTitle: '红色警告按钮',
+				buttons : atype
+			}, function(ret, err) {
+				if (ret.buttonIndex == 7) {
+				} else {
+					var result = $api.byId("type");
+					type = atype[ret.buttonIndex - 1];
+					result.innerHTML = "<b>" + type + "</b>";
+					//getData(type[ret.buttonIndex-1]);
+					//api.alert({msg: '你刚点击了'+ret.buttonIndex });
+					
+				}
+			});
+		}
+
+		function commit() {
+		  var act_name = $api.byId('act_name').value;
+		  var publisher = $api.getStorage('uid');
+		  //var type = $api.byId('type').value;
+		  //var act_time = $api.byId('act_time').value;
+		  var location = $api.byId('location').value;
+		  var details = $api.byId('details').value;
+		  var mystr = "act_name="+act_name+"&publisher="+publisher+"&type="+type+"&act_time="+act_time+"&location="+location+"&details="+details;
+		  //alert(mystr);
+		  
+		 var publishUrl = '/act_publish?'
+			api.ajax({
+				url : serverAddr+publishUrl+mystr,
+				method : 'post',
+				cache : false,
+				timeout : 30,
+				dataType : 'text',
+				returnAll : false,
+			}, function(ret, err) {
+				if(ret ==='1')
+				{
+				   api.alert({title:'发布成功',
+				   msg:'你可以在个人界面查看和修改！'
+                   },function(ret,err){
+                   	api.closeWin();
+                   	//coding...
+                   });
+				}
+				else{
+				alert('发布失败！');
+				}
+			});
+		}
+    </script>
+</html>

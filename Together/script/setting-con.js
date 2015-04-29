@@ -20,6 +20,15 @@ function modifyPwd() {
     });
 }
 
+function Memorandum() {
+    api.openWin({
+        name: 'Memorandum',
+        url: 'Memorandum.html',
+        opaque: true,
+        vScrollBarEnabled: false
+    });
+}
+
 function loginBtn() {
     api.openWin({
         name: 'userLogin',
@@ -55,7 +64,20 @@ function loginOut() {
 //      }
 //  }, function (ret, err) {
 //      if (ret) {
-            $api.clearStorage();
+	var uid = $api.getStorage('uid');
+	var logoutUrl = '/logout?';
+	api.ajax({
+			url: serverAddr + logoutUrl + "username=" + uid,
+	    	method : 'POST',
+			cache : false,
+			timeout : 30,
+			dataType : 'text',
+			returnAll : false,
+    },function(ret,err){
+    	if(ret==='1')
+    	{
+    	    api.hideProgress();
+    		$api.clearStorage();
             api.execScript({
                 name: 'root',
                 script: 'openTab("main");'
@@ -63,10 +85,17 @@ function loginOut() {
             setTimeout(function () {
                 api.closeWin();
             }, 100);
+    	}
+    	else{
+    	api.hideProgress();
+    	alert("退出失败！");
+    	}
+    });
+            
 //      } else {
 //          alert(JSON.stringify(err));
 //      }
-        api.hideProgress();
+
 //  });
 }
 
