@@ -66,12 +66,12 @@
                 <script id="act-template" type="text/x-dot-template">
                
                 {{~    it.array:value:index    }}
-                <div class="act-Item">
+                <div class="act-Item" onclick="act_details({{=value.id}})">
                  <h2>{{=value.act_name}}</h2>
-                 <h3>{{=value.username}}</h3>
+                 <h3>{{=value.publisher}}</h3>
                  <h4>{{=value.location}}</h4>
                  <h4>{{=value.details}}</h4>
-                 <h4>{{=value.time}}</h4>                
+                 <h4>{{=value.act_time}}</h4>                
                 </div>
                 {{~}}
                 </script>

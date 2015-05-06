@@ -31,6 +31,11 @@ function ensure() {
     var name = $api.byId('userName').value;
     var pwd = $api.byId('userPwd').value;
     var pwd2 = $api.byId('userPwd2').value;
+    if (name ==="all")
+    {
+    	alert("用户已经被注册！");
+    	return ;
+    }
     if (pwd !== pwd2) {
         api.alert({
             msg: '两次密码不一致'

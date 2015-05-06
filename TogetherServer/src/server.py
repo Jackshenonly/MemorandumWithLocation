@@ -4,7 +4,7 @@ from config import load_config #绝对导入
 import MySQLdb
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-     render_template, flash, _app_ctx_stack
+     render_template, flash, _app_ctx_stack,jsonify
 import time
 #初始化环境
 
@@ -206,7 +206,108 @@ def logout():
     db.commit()
     return "1"
 
+@app.route('/get_act_list/<username>')
+def get_act_list(username):
 
+    testData = {"array":[]}
+    db = get_db()
+    cursor = db.cursor()
+    if username != "all":
+        cursor.execute('select FriendUsername from friends where HostUsername=%s',[username])
+        users = cursor.fetchall()
+        
+        for x in users:
+            cursor.execute("select * from activity  where publisher =%s order by pub_time desc",[x[0]])
+            data = cursor.fetchall()
+            for i in data:
+                item = {}
+                item["id"]        = i[0]
+                item["act_name"]  = i[1]
+                item["publisher"] = i[2]
+                item["details"]   = i[3]
+                item["location"]  = i[4]
+                item["act_time"]  = str(i[5])
+                item["pub_time"]  = str(i[6])
+                item["type"]      = i[7]
+                testData["array"].append(item)
+
+        return jsonify(testData)
+    
+    
+    cursor.execute('select * from activity order by pub_time desc')
+    data = cursor.fetchall()
+    
+    
+    for i in data:
+        item = {}
+        item["id"]       = i[0]
+        item["act_name"] = i[1]
+        item["publisher"] = i[2]
+        item["details"]  = i[3]
+        item["location"] = i[4]
+        item["act_time"] = str(i[5])
+        item["pub_time"] = str(i[6])
+        item["type"]     = i[7]
+        testData["array"].append(item)
+
+
+    return jsonify(testData)
+
+@app.route("/get_act/<act_id>")
+def get_act(act_id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("select * from activity where Id = %s",[act_id])
+    data = cursor.fetchall()
+    item = {}
+    for i in data:
+
+        item["id"]       = i[0]
+        item["act_name"] = i[1]
+        item["publisher"] = i[2]
+        item["details"]  = i[3]
+        item["location"] = i[4]
+        item["act_time"] = str(i[5])
+        item["pub_time"] = str(i[6])
+        item["type"]     = i[7]
+    return jsonify(item)
+
+@app.route('/get_comment/<act_id>')
+def get_comment(act_id):
+
+    testData = {"array":[]}
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('select * from comments where act_id=%s order by time',[act_id])
+    data = cursor.fetchall()
+        
+    
+    for i in data:
+        item = {}
+        item["id"]        = i[0]
+        item["act_id"]    = i[1]
+        item["username"]  = i[2]
+        item["comments"]  = i[3]
+        item["time"]      = i[4]
+
+        testData["array"].append(item)
+
+    return jsonify(testData)
+
+@app.route('/set_comment',methods=['GET','POST'])
+def set_comment():
+
+    act_id   = request.args.get("act_id")
+    username = request.args.get("username")
+    comments = request.args.get("comments")
+
+    mytime = time.strftime("%Y-%m-%d %H:%M:%S")
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('insert into comments(act_id,username,comments,time) values(%s,%s,%s,%s)',[act_id,username,comments,mytime])
+    db.commit()
+    
+    return "1"
 
 if __name__ == '__main__':
     app.debug = True

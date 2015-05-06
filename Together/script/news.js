@@ -17,6 +17,14 @@ function initSlide() {
         }
     });
 }
+function act_details(id){
+		api.openWin({
+		name: 'act-details',
+		url: './act-details.html',
+		pageParam: {id: id }
+	});
+}
+
 
 function getBanner(id) {
     api.showProgress({
@@ -142,22 +150,23 @@ function getData(id) {
 //      }
 //      api.hideProgress();
 //  })
-*/
-	var testData = {"array":
-					[{"username":"jackshen","act_name":"斯诺克","location":"绅士俱乐部","details":"一起来斯诺克吧！我等你哟","time":"2014-04-04","type":"娱乐"},
-					{"username":"jackshen","act_name":"篮球","location":"第一运动场","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"运动"},
-					{"username":"北哥","act_name":"约么？","location":"某个Hotel！你选","details":"你懂的！哈哈~~","time":"2014-04-04","type":"学习"},
-					{"username":"北哥","act_name":"吃货，走起！","location":"必胜客","details":"吃个饱饱哒，便宜实惠！","time":"2014-04-04","type":"拼桌"},
-					{"username":"jackshen","act_name":"看个电影吧！","location":"男主白血病影院","details":"失恋求安慰！","time":"2014-04-04","type":"电影"},
-					{"username":"北哥","act_name":"K歌","location":"宝龙","details":"谁能与我一 觉 高下！","time":"2014-04-04","type":"娱乐"},
-					{"username":"jackshen","act_name":"露天桌游！","location":"钱塘江泮","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"娱乐"},
-					]
-					};
-	var username = "北哥";
-	var onlyMine = {"array":[]};
+*/	
+	var testData;
+	var username = $api.getStorage('uid');;
+	var getdataUrl = "/get_act_list/"
+	api.ajax({
+	    url:serverAddr + getdataUrl+username,
+	    method:'get',
+	    cache: false,
+        timeout: 30,
+        dataType: 'json',
+        returnAll: false
+    },function(ret,err){
+    	testData = ret;
+    	var onlyMine = {"array":[]};
 	for ( var i=0;i < testData.array.length;i++)
 	{
-			if(testData.array[i].username === '北哥')
+			if(testData.array[i].username === username)
 			{
 				onlyMine.array.push(testData.array[i]);
 			}
@@ -171,6 +180,39 @@ function getData(id) {
 		var evalText = doT.template($("#act-template").text());
 		$("#act-content").html(evalText(testData));
 	}
+    	//coding...
+    });
+
+
+
+//	var testData = {"array":
+//					[{"username":"jackshen","act_name":"斯诺克","location":"绅士俱乐部","details":"一起来斯诺克吧！我等你哟","time":"2014-04-04","type":"娱乐"},
+//					{"username":"jackshen","act_name":"篮球","location":"第一运动场","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"运动"},
+//					{"username":"北哥","act_name":"约么？","location":"某个Hotel！你选","details":"你懂的！哈哈~~","time":"2014-04-04","type":"学习"},
+//					{"username":"北哥","act_name":"吃货，走起！","location":"必胜客","details":"吃个饱饱哒，便宜实惠！","time":"2014-04-04","type":"拼桌"},
+//					{"username":"jackshen","act_name":"看个电影吧！","location":"男主白血病影院","details":"失恋求安慰！","time":"2014-04-04","type":"电影"},
+//					{"username":"北哥","act_name":"K歌","location":"宝龙","details":"谁能与我一 觉 高下！","time":"2014-04-04","type":"娱乐"},
+//					{"username":"jackshen","act_name":"露天桌游！","location":"钱塘江泮","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"娱乐"},
+//					]
+//					};
+//	
+//	var onlyMine = {"array":[]};
+//	for ( var i=0;i < testData.array.length;i++)
+//	{
+//			if(testData.array[i].username === '北哥')
+//			{
+//				onlyMine.array.push(testData.array[i]);
+//			}
+//	}
+//	if (id==1)
+//	{
+//		var evalText = doT.template($("#act-template").text());
+//		$("#act-content").html(evalText(onlyMine));
+//	}else
+//	{
+//		var evalText = doT.template($("#act-template").text());
+//		$("#act-content").html(evalText(testData));
+//	}
 
 
 
@@ -250,8 +292,8 @@ navigationBar.open(params, callback);
         
         //getBanner(api.pageParam.tid);
         //initPage(api.pageParam.tid);
-        alert("刷新完成！\n不过现在数据是死的！");
-        getData();
+        //alert("刷新完成！\n不过现在数据是死的！");
+        getData(0);
         api.refreshHeaderLoadDone();
     });
     api.addEventListener({

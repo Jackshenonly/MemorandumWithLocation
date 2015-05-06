@@ -29,7 +29,7 @@ function showHeader(type){
 function openTab(type,tid){
 
 
-    if(type === 'user'){
+    if(type === 'user' || type ==='news' || type ==='life' || type ==='activity'){
     	//login
 	    var uid = $api.getStorage('uid');
 		if(!uid){

@@ -1,6 +1,13 @@
 function myalert(){
 alert("你点击了图片");
 }
+function act_details(id){
+		api.openWin({
+		name: 'act-details',
+		url: './act-details.html',
+		pageParam: {id: id }
+	});
+}
 function publish(){
 	var uid = $api.getStorage('uid');
 		if(!uid){
@@ -81,20 +88,22 @@ function getData(type) {
 //      api.hideProgress();
 //  })
 */
+
+		var typeData = {"array":[]};
+	        type = arguments[0] || "全部";
 	
-	var testData = {"array":
-					[{"username":"jackshen","act_name":"斯诺克","location":"绅士俱乐部","details":"一起来斯诺克吧！我等你哟","time":"2014-04-04","type":"娱乐"},
-					{"username":"jackshen","act_name":"篮球","location":"第一运动场","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"运动"},
-					{"username":"北哥","act_name":"约么？","location":"某个Hotel！你选","details":"你懂的！哈哈~~","time":"2014-04-04","type":"学习"},
-					{"username":"北哥","act_name":"吃货，走起！","location":"必胜客","details":"吃个饱饱哒，便宜实惠！","time":"2014-04-04","type":"拼桌"},
-					{"username":"jackshen","act_name":"看个电影吧！","location":"男主白血病影院","details":"失恋求安慰！","time":"2014-04-04","type":"电影"},
-					{"username":"北哥","act_name":"K歌","location":"宝龙","details":"谁能与我一 觉 高下！","time":"2014-04-04","type":"娱乐"},
-					{"username":"jackshen","act_name":"露天桌游！","location":"钱塘江泮","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"娱乐"},
-					]
-					};
-	var typeData = {"array":[]}
-	type = arguments[0] || "全部";
-	if (type==="全部")
+	
+	var getdataUrl = "/get_act_list/all"
+	api.ajax({
+	    url:serverAddr + getdataUrl,
+	    method:'get',
+	    cache: false,
+        timeout: 30,
+        dataType: 'json',
+        returnAll: false
+    },function(ret,err){
+    	testData = ret;
+    	if (type==="全部")
 	{
 		var evalText = doT.template($("#act-template").text());
 		$("#act-content").html(evalText(testData));
@@ -109,6 +118,22 @@ function getData(type) {
 		var evalText = doT.template($("#act-template").text());
 		$("#act-content").html(evalText(typeData));
 	}
+    	//coding...
+    });
+	
+	
+	var testData = {"array":
+					[{"username":"jackshen","act_name":"斯诺克","location":"绅士俱乐部","details":"一起来斯诺克吧！我等你哟","time":"2014-04-04","type":"娱乐"},
+					{"username":"jackshen","act_name":"篮球","location":"第一运动场","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"运动"},
+					{"username":"北哥","act_name":"约么？","location":"某个Hotel！你选","details":"你懂的！哈哈~~","time":"2014-04-04","type":"学习"},
+					{"username":"北哥","act_name":"吃货，走起！","location":"必胜客","details":"吃个饱饱哒，便宜实惠！","time":"2014-04-04","type":"拼桌"},
+					{"username":"jackshen","act_name":"看个电影吧！","location":"男主白血病影院","details":"失恋求安慰！","time":"2014-04-04","type":"电影"},
+					{"username":"北哥","act_name":"K歌","location":"宝龙","details":"谁能与我一 觉 高下！","time":"2014-04-04","type":"娱乐"},
+					{"username":"jackshen","act_name":"露天桌游！","location":"钱塘江泮","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"娱乐"},
+					]
+					};
+
+	
 
 
 
