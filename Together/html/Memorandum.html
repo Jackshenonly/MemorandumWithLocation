@@ -39,7 +39,7 @@
                                 <td style="font-family:微软雅黑;font-size:15px;color:blue">12:10</td><td style="text-align:center;vertical-align:middle;color:#201A74;font-family:微软雅黑;">宝龙某餐馆</td>
                             </tr>
                         </table>
-                    </li>         
+                    </li>
                 </ol>
                 <!--<div class="input-wrap">
                 <input type="password" placeholder="当前密码" class="txt" id="currentPwd" value="" />
@@ -53,11 +53,23 @@
                 <input type="password" placeholder="确认新密码" class="txt" id="newPwd2" value="" />
                 <i class="del" tapmode="" onclick="delWord(this)"></i>
                 </div>-->
-                <a class="btn" tapmode="active" onclick="alert('这个界面还没写%>_<%');">新增备忘录</a>
+                <a class="btn" tapmode="active" onclick="newMemorandum()">新增备忘录</a>
             </div>
         </div>
     </body>
     <script type="text/javascript" src="../script/api.js"></script>
     <script type="text/javascript" src="../script/common.js"></script>
-    <script type="text/javascript" src="../script/modifyPwd.js"></script>
+    <script type="text/javascript" src="../script/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="../script/doT.min.js"></script>
+    
+    <script>
+    function newMemorandum(){
+        api.openWin({
+	        name: 'newMemorandum',
+	        url: './newMemorandum.html'
+        });
+    }
+    
+    
+    </script>
 </html>

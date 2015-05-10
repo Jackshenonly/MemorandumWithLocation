@@ -1,4 +1,4 @@
-﻿var serverAddr = "http://169.254.151.89:9000";
+﻿var serverAddr = "http://172.15.59.139:9000";
 function openWin(name) {
     api.openWin({
         name: name,
