@@ -161,6 +161,7 @@ def register():
                 return "2" #用户已经被注册！
             else :
                 cur.execute('insert into user(username,password) values(%s,%s)',[username,password])
+                cur.execute('insert into friends(HostUsername,FriendUsername) values(%s,%s)',[username,username])
                 db.commit()
                 return "1"
             
