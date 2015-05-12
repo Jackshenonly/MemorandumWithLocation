@@ -53,10 +53,10 @@ function openMer(did) {
 
 //init personal center
 function initPersonalCenter(json) {
-    api.showProgress({
-        title: '加载中...',
-        modal: false
-    });
+//  api.showProgress({
+//      title: '加载中...',
+//      modal: false
+//  });
     json = json || {};
     if (!json.nickname) {
         return;

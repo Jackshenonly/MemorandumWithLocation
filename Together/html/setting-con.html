@@ -42,11 +42,11 @@
 	                </li>
 	                <li class="gender">
 	                	{{? it.gender }}
-	                		<a>
+	                		<a onclick="modifygender('{{=it.gender}}');">
 		                    	性别<em>{{=it.gender}}</em>
 		                	</a>
 	                	{{??}}
-	                		<a>
+	                		<a onclick="modifygender('男');">
 		                    	性别<em>男</em>
 		                	</a>
 	                	{{?}}

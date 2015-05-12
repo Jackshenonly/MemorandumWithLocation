@@ -32,7 +32,7 @@
             <div class="contactItem" onclick="addFriend()">
                 添加新朋友
             </div>
-            <div class="contactItem">
+            <div class="contactItem" onclick="haveAtry()">
                 试试缘分
             </div>
             <div class="contactItem">
@@ -44,7 +44,7 @@
                     <div class = "contactItem" onclick="friendDetails('{{=value.name}}')">
                     <table><tr>
                     <td><img src="../image/jack.jpg"/></td>
-                    <td><div>{{= index }}->姓名：{{= value.name }}，性别：{{=value.sex}}</div><td>
+                    <td><div>{{= index }}->{{= value.name }}</div><td>
                     </tr>
                     </table>
                     </div>

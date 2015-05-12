@@ -2,7 +2,93 @@ function friendDetails(username){
 alert("你点击了"+username);
 }
 function addFriend(){
-alert("添加好友");
+//alert("添加好友");
+			api.prompt({
+				title : "添加好友",
+				buttons : ['确定', '取消']
+			}, function(ret, err) {
+				if (ret.buttonIndex == 1) {
+					//					api.alert({
+					//						msg : ret.text
+					//					});
+				    commit(ret.text);
+				}
+			});  
+}
+
+
+function commit(comments) {
+		    
+			var username = $api.getStorage('uid');
+
+			var mystr = "HostUsername=" + username + "&FriendUsername=" + comments;
+			//alert(mystr);
+			var addFriendUrl = '/add_friend?'
+			api.ajax({
+				url : serverAddr + addFriendUrl + mystr,
+				method : 'post',
+				cache : false,
+				timeout : 30,
+				dataType : 'text',
+				returnAll : false,
+			}, function(ret, err) {
+				if (ret === '1') {
+				
+					api.alert({
+						msg : '添加成功！'
+					}, function(ret, err) {
+					
+						getData()
+						//coding...
+					});
+				} 
+				else if(ret ==="2")
+				{
+					alert("该用户已经是你的好友了！");
+				}
+				else if(ret ==="3")
+				{
+					alert("没有该用户！");
+				}
+				else {
+					alert('添加失败！请重试！');
+				}
+			});
+		}
+
+
+function haveAtry()
+{
+		var username = $api.getStorage('uid');
+//			alert(username);
+//			alert(act_id);
+//			alert(comments);
+//          return ;
+			var mystr = "HostUsername=" + username;
+			//alert(mystr);
+			var haveAtryUrl = '/haveAtry?'
+			api.ajax({
+				url : serverAddr + haveAtryUrl + mystr,
+				method : 'get',
+				cache : false,
+				timeout : 30,
+				dataType : 'text',
+				returnAll : false,
+			}, function(ret, err) {
+
+				
+					api.alert({
+						title:"你可以尝试添加以下用户：",
+						msg : ret,
+					}, function(ret, err) {
+					
+						
+						//coding...
+					});
+	
+
+			});
+		
 }
 
 function initSlide() {
@@ -62,50 +148,68 @@ function getData() {
 //  var getActivityUrl = '/activity';
 //  ajaxRequest(getActivityUrl, 'GET', '', function (ret, err) {
 //      if (ret) {
+	var username = $api.getStorage('uid');
 
-			var ret = 
-		{"array":
-			[{"name":"jackshen","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"rose","sex":0,"image":"widget://image/jack.jpg"},
-			{"name":"jackshen","sex":0,"image":"widget://image/jack.jpg"},
-			{"name":"路向北","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"西游记","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"孙悟空","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"泰坦尼克","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"小鸡鸡","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"顾明辉","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"汪朝晖","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"万盛玮","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"草泥马","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"背锅","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"思密达","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"哈哈哈","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"嘻嘻嘻","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"Alibaba","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"baidu","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"tencent","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"baidu","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"baidu","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"tencent","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"baidu","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"tencent","sex":1,"image":"widget://image/jack.jpg"},
-			{"name":"baidu","sex":1,"image":"widget://image/jack.jpg"},]
-			
-		};
-//          var content = $api.byId('contactList');
-//          var tpl = $api.byId('contacttmpl').text;
-//          var tempFn = doT.template(tpl);
-//          content.innerHTML = tempFn(ret);
-			var evalText = doT.template($("#contacttmpl").text());
-			$("#content_contactList").html(evalText(ret));
+			var mystr = username;
+			//alert(mystr);
+			var getFriendUrl = '/get_friend/'
+			api.ajax({
+				url : serverAddr + getFriendUrl + mystr,
+				method : 'get',
+				cache : false,
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false,
+			}, function(ret, err) {
+				if (ret) {
+				var evalText = doT.template($("#contacttmpl").text());
+				$("#content_contactList").html(evalText(ret));
+				api.parseTapmode();//使模板生效
+
+				} 
+				
+				else {
+					alert('你还没有好友！试试缘分吧！');
+				}
+			});
+/*
+//			var ret = 
+//		{"array":
+//			[{"name":"jackshen","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"rose","sex":0,"image":"widget://image/jack.jpg"},
+//			{"name":"jackshen","sex":0,"image":"widget://image/jack.jpg"},
+//			{"name":"路向北","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"西游记","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"孙悟空","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"泰坦尼克","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"小鸡鸡","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"顾明辉","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"汪朝晖","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"万盛玮","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"草泥马","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"背锅","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"思密达","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"哈哈哈","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"嘻嘻嘻","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"Alibaba","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"baidu","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"tencent","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"baidu","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"baidu","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"tencent","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"baidu","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"tencent","sex":1,"image":"widget://image/jack.jpg"},
+//			{"name":"baidu","sex":1,"image":"widget://image/jack.jpg"},]
+//			
+//		};
+//			
+//			
+ */           
             
-            api.parseTapmode();//使模板生效
             
-//      } else {
-//          api.toast({msg: err.msg, location: 'middle'})
-//      }
+
       api.hideProgress();
-//  })
+
 
 }
 

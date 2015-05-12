@@ -11,6 +11,33 @@ function modifyNick(nickname) {
     });
 }
 
+function modifygender(gender){
+	
+	newGender = ""
+	if(gender ==="男"){ newGender = "女";}
+	else if (gender ==="女"){ newGender = "未知" ;}
+	else {newGender = "男"}
+	var uid = $api.getStorage('uid');
+	var mystr = "username=" + uid+"&Gender="+newGender;
+	var updateGenderUrl = "/updateGender?";
+	api.ajax({
+		url:serverAddr + updateGenderUrl + mystr,
+	    method : 'POST',
+			cache : false,
+			timeout : 30,
+			dataType : 'text',
+			returnAll : false,
+    },function(ret,err){
+    if (ret ==="1")
+    {	
+    	init();
+    }
+    	//coding...
+    });
+	
+
+
+}
 function modifyPwd() {
     api.openWin({
         name: 'modifyPwd',
@@ -132,9 +159,18 @@ function init() {
         modal: false
     });
     var uid = $api.getStorage('uid');
-    var getUserById = '/user/' + uid;
-    ajaxRequest(getUserById, 'get', '', function (ret, err) {
-        if (ret) {
+    var mystr = uid;
+    var getNickNameUrl = '/getNickName/';
+    api.ajax({
+	    url : serverAddr + getNickNameUrl + mystr,
+		method : 'get',
+		cache : false,
+		timeout : 30,
+		dataType : 'json',
+		returnAll : false,
+    },function(ret,err){
+    	//coding...
+    	if (ret) {
             var content = $api.byId('content');
             var tpl = $api.byId('template').text;
             var tempFn = doT.template(tpl);
@@ -142,8 +178,10 @@ function init() {
         } else {
             api.toast({msg: err.msg})
         }
+    });
+        
         api.hideProgress();
-    })
+   
 }
 
 apiready = function () {

@@ -1,38 +1,35 @@
 function ensure() {
     var uid = $api.getStorage('uid');
     var nickname = $api.byId('nickname').value;
+	var mystr = "NickName="+nickname+"&username="+uid;
+    var updateNickNameUrl = '/updateNickName?';
 
-    var updateNickNameUrl = '/user/' + uid;
-    var bodyParam = {
-        nickname: nickname
-    }
-    ajaxRequest(updateNickNameUrl, 'put', JSON.stringify(bodyParam), function (ret, err) {
-        if (ret) {
-            //update personal center
-            api.execScript({
-                name: 'setting',
-                frameName: 'setting-con',
-                script: 'init();'
-            });
+    api.ajax({
+				url : serverAddr + updateNickNameUrl + mystr,
+				method : 'post',
+				cache : false,
+				timeout : 30,
+				dataType : 'text',
+				returnAll : false,
+			}, function(ret, err) {
+				if (ret === '1') {
+				
+					api.alert({
+						msg : '修改成功！'
+					}, function(ret, err) {
+					
+						
+						//coding...
+					});
+				} 
+				else if(ret ==="0"){
+				alert("修改失败！请重试");}
+				else
+				{
+				alert("修改失败！请检查网络！");
+				}
 
-            api.execScript({
-                name: 'root',
-                frameName: 'user',
-                script: 'updateInfo();'
-            });
-
-            setTimeout(function () {
-                api.alert({
-                    msg: '修改成功'
-                }, function (ret, err) {
-                    api.closeWin();
-                });
-            }, 200);
-
-        } else {
-            api.toast({msg: err.msg})
-        }
-    })
+			});
 }
 
 apiready = function () {

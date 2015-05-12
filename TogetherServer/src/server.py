@@ -180,6 +180,48 @@ def pwd_modify():
     else :
         return "0"
 
+
+@app.route("/updateNickName",methods=['GET','POST'])
+def updateNickName():
+    if request.method == 'POST':
+        username = request.args.get('username')
+        NickName   = request.args.get('NickName')
+        db = get_db()
+        cur = db.cursor()
+        cur.execute('update user set NickName =%s where username= %s',[NickName,username])
+        db.commit()
+        return "1"
+    else :
+        return "0"
+
+@app.route("/updateGender",methods=['GET','POST'])
+def updateGender():
+    if request.method == 'POST':
+        username = request.args.get('username')
+        Gender   = request.args.get('Gender')
+        db = get_db()
+        cur = db.cursor()
+        cur.execute('update user set Gender =%s where username= %s',[Gender,username])
+        db.commit()
+        return "1"
+    else :
+        return "0"
+
+@app.route("/getNickName/<username>",methods=['GET','POST'])
+def getNickName(username):
+
+
+        db = get_db()
+        cur = db.cursor()
+        cur.execute('select NickName,Gender from user where username= %s',[username])
+        data =cur.fetchall()
+        test = {}
+        for x in data:
+            test["nickname"] =x[0]
+            test["gender"] = x[1] 
+        return jsonify(test)
+
+
 @app.route('/act_publish',methods=['POST','GET'])
 def act_publish():
     act_name = request.args.get('act_name')
@@ -309,6 +351,55 @@ def set_comment():
     db.commit()
     
     return "1"
+
+@app.route("/add_friend",methods = ['POST','GET'])
+def add_friend():
+    HostUsername = request.args.get("HostUsername")
+    FriendUsername = request.args.get("FriendUsername")
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("select * from friends where HostUsername=%s and FriendUsername = %s",[HostUsername,FriendUsername])
+    data1 = cursor.fetchall()
+    cursor.execute("select * from user where username = %s",[FriendUsername])
+    data2 = cursor.fetchall()
+    if data1 :
+        return "2"
+    elif not data2 :
+        return "3"
+    else:
+        cursor.execute("insert into friends(HostUsername,FriendUsername) values(%s,%s)",[HostUsername,FriendUsername])
+        db.commit()
+
+        return "1"
+@app.route("/haveAtry")
+def haveAtry():
+    HostUsername = request.args.get("HostUsername")
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("select distinct FriendUsername from friends where HostUsername !=%s and FriendUsername !=%s and FriendUsername!=HostUsername",[HostUsername,HostUsername])
+    datas = cursor.fetchall()
+    mstr = ""
+    for data in datas:
+        mstr += data[0]+"\n"
+    return mstr
+
+@app.route("/get_friend/<HostUsername>")
+def get_friend(HostUsername):
+
+    testData = {"array":[]}
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('select FriendUsername from friends where HostUsername=%s',[HostUsername])
+    users = cursor.fetchall()
+        
+    for x in users:
+        item = {}
+        item["name"] = x[0]
+        testData["array"].append(item)
+
+    return jsonify(testData)
+    
 
 if __name__ == '__main__':
     app.debug = True
