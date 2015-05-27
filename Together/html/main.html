@@ -33,7 +33,7 @@
 			<script id="banner-template" type="text/x-dot-template">
 				{{~   it.array:value:index   }}
 				<div>
-					<img src="{{=value.url}}" onclick="myalert()"/>
+					<img src="{{=value.url}}" onclick="act_details('{{=value.id}}')"/>
 					<label><div class="blur"></div>{{=value.name}}</label>
 				</div>
 				

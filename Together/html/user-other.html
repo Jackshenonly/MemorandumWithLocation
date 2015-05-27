@@ -1,0 +1,62 @@
+﻿<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0, width=device-width"/>
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="format-detection" content="address=no" />
+        <title>api</title>
+        <link rel="stylesheet" type="text/css" href="../css/user.css" />
+        <link rel="stylesheet" type="text/css" href="../css/api.css" />
+        <link rel="stylesheet" type="text/css" href="../css/common.css" />
+        <link rel="stylesheet" type="text/css" href="../css/modifyPwd.css" />
+        <style>
+			.act-Item {
+				margin: 4px;
+				border: 4px;
+				padding: 4px;
+				font-style: normal;
+				color: #F59393;
+				-webkit-box-shadow: 0px 4px 4px #dddcdc;
+				box-shadow: 0px 4px 4px #dddcdc;
+				background-color: #fff;
+				margin-bottom: 10px;
+			}
+        </style>
+    </head>
+    <body>
+        <div id="wrap">
+            <div id="header" style="position:fixed;z-index:2000">
+                <a class="back-icon"  tapmode="" onclick="api.closeWin()"></a>
+                <h1></h1>
+            </div>
+            <div style="position:fixed;top:2px;right:10px;z-index:2001">
+            <a class="btn" onclick="openchatDetail()">发私信</a>
+            </div>
+            <div id="main">
+                <div style="height:90px"></div>
+                <div id="activity">
+                    <h1></h1>
+                    <script id="act-template" type="text/x-dot-template">
+                        {{~    it.array:value:index    }}
+                        <div class="act-Item" onclick="act_details({{=value.id}})">
+                        <h2>{{=value.act_name}}</h2>
+                        <h3>{{=value.publisher}}</h3>
+                        <h4>{{=value.location}}</h4>
+                        <h4>{{=value.details}}</h4>
+                        <h4>{{=value.act_time}}</h4>
+                        </div>
+                        {{~}}
+                    </script>
+                    <div id="act-content"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+ 
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/doT.min.js"></script>
+    <script type="text/javascript" src="../script/common.js"></script>
+    <script type="text/javascript" src="../script/user-other.js"></script>
+    <script type="text/javascript" src="../script/jquery-2.1.1.js"></script>
+</html>

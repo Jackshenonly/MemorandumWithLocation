@@ -165,9 +165,9 @@ function getBanner(id) {
 //          });
 //      }
 //  })
-	var testData = {"array":[{"url":"http://cms.csdnimg.cn/article/201408/29/53ffe43d28129.jpg","name":"Linux4.0 is Nice！"},
-					{"url":"http://news.myfiles.com.cn/img/20120907/be2f097a301a4a3e8de75a81b0b8e50d.jpg","name":"Ubuntu"},
-					{"url":"../image/jack.jpg","name":"I am jack!"}]
+	var testData = {"array":[{"url":"http://cms.csdnimg.cn/article/201408/29/53ffe43d28129.jpg","name":"Linux4.0 is Nice！","id":"1"},
+					{"url":"http://news.myfiles.com.cn/img/20120907/be2f097a301a4a3e8de75a81b0b8e50d.jpg","name":"Ubuntu","id":"2"},
+					{"url":"../image/jack.jpg","name":"I am jack!","id":"3"}]
 					};
 					
 	var evalText = doT.template($("#banner-template").text());

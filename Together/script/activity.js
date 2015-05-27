@@ -1,5 +1,14 @@
 function friendDetails(username){
-alert("你点击了"+username);
+
+	api.openWin({
+        name: 'user-other',
+        url: './user-other.html',
+       	opaque: true,
+        pageParam: {
+            username: username
+        },
+        //vScrollBarEnabled: false
+    });
 }
 function addFriend(){
 //alert("添加好友");
