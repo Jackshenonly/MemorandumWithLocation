@@ -33,10 +33,10 @@
                 <div id="chatlist">
                     <script id="chatlist-template" type="text/x-dot-template">
                         {{~ it.array:value:index  }}
-                        <div class="chatItem" onclick="alert('和'+'{{=value.title}}'+'的聊天')">
+                        <div class="chatItem" onclick="openchatDetail('{{=value}}')">
                     <table><tr>
-                    <td><img src="{{=value.img}}"/></td>
-                    <td><div>{{= value.title }}</div><td>
+                    <td><img src="../image/jack.jpg"/></td>
+                    <td><div>{{=value }}</div><td>
                     </tr>
                     </table>
                     </div>

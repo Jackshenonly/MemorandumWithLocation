@@ -8,9 +8,19 @@ function ensure() {
         title: '密码修改中...',
         modal: false
     });
+    var oldPwd = $api.byId('oldPwd').value;
 	var newPwd = $api.byId('newPwd').value;
 	var newPwd2 = $api.byId('newPwd2').value;
 	var uid = $api.getStorage('uid');
+	if(oldPwd !=$api.getStorage('pwd'))
+	{
+		api.alert({msg:"当前密码错误！"
+        },function(ret,err){
+        	//coding...
+        });
+        api.hideProgress();
+        return;
+	}
 	if (newPwd !== newPwd2) {
 		api.alert({
 			msg : '确认密码与新密码不一致'
@@ -28,6 +38,7 @@ function ensure() {
 		}, function(ret, err) {
 			if (ret === "1") {
 				alert("密码修改成功！");
+				$api.setStorage('pwd',newPwd2);
 				api.closeWin();
 			
 			} else {

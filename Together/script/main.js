@@ -254,32 +254,10 @@ apiready = function () {
     api.addEventListener({
         name: 'scrolltobottom'
     }, function (ret, err) {
-    	alert("已经到底部了！");
-    	//api.alert({msg:test},function(ret,err){});
-api.ajax({
-            url: 'http://169.254.151.89:9000/',
-            method: 'get',
-            cache: false,
-            timeout: 30,
-            dataType: 'json',
-            returnAll: false,
-
-        }, function (ret, err) {
-            if (ret) {
-                //var urlJson=JSON.stringify(ret);
-                api.alert({msg:ret
-                },function(ret,err){
-                	//coding...
-                });
-
-            } else {
-                api.alert({
-                    msg: '错误码:' + err.code + ';错误信息:' + err.msg + '网络状态码:' + err.statusCode
-                })
-            }
-            ;
+    	api.toast({
+	        msg:'已经没有啦！'
         });
-    	
+    	//api.alert({msg:test},function(ret,err){});	
     	
         //getBanner(api.pageParam.tid);
        // getData(api.pageParam.tid);

@@ -1,0 +1,257 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0, width=device-width"/>
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="format-detection" content="address=no" />
+        <title>api</title>
+        <link rel="stylesheet" type="text/css" href="../css/api.css" />
+        <link rel="stylesheet" type="text/css" href="../css/common.css" />
+        <link rel="stylesheet" type="text/css" href="../css/act-details.css" />
+        <style>
+			.act-Item {
+				margin: 4px;
+				border: 4px;
+				padding: 4px;
+				font-style: normal;
+				color: #F59393;
+				-webkit-box-shadow: 0px 4px 4px #dddcdc;
+				box-shadow: 0px 4px 4px #dddcdc;
+				background-color: #fff;
+				margin-bottom: 10px;
+			}
+        </style>
+    </head>
+    <body>
+        <div id="wrap">
+            <div id="header" style="position:fixed;z-index:2000">
+                <a class="back-icon" tapmode="" onclick="api.closeWin()"></a>
+                <h1>活动详情</h1>
+            </div>
+            <div style="height:40px;"></div>
+            <div id="main">
+                <script id="act-template" type="text/x-dot-template">
+                    <div class="input-wrap">
+                    <table>
+                    <tr>
+                    <td>活动名：</td>
+                    <td>
+                    <label id="act_name" class="txt">{{=it.act_name}}</label>
+                    </tr>
+                    </table>
+                    </div>
+                    <div id = "filter" class="input-wrap">
+                    <table>
+                    <tr>
+                    <td>活动类型:</td>
+                    <!-- <td><img src="../image/menu.png"/></td>-->
+                    <td><label id = "type" class="txt">{{=it.type}}</label></td>
+                    </tr>
+                    </table>
+                    </div>
+                    <div class="input-wrap">
+                    <table>
+                    <tr>
+                    <td>时间：</td>
+                    <td><label id="act_time" class="txt">{{=it.act_time}}</label></td>
+                    </tr>
+                    </table>
+                    </div>
+                    <div class="input-wrap">
+                    <table>
+                    <tr>
+                    <td>地点：</td>
+                    <td>
+                    <label id="location" class="txt" >{{=it.location}}</label>
+                    </tr>
+                    </table>
+                    </div>
+                    <div class="input-wrap last">
+                    其他说明：                     <textarea id="details" rows="5" cols="20" class="details" readonly   id="details" >{{=it.details}}</textarea>
+                    </div>
+                    <div id="publish" style="position:fixed;bottom:40px;right:20px;weight:40px;height:40px" >
+                    <table>
+                    <tr>
+                    <td><img src="../image/edit.png"  onclick="setcomment()"></img></td>
+                    <td><a class="btn" tapmode="active" onclick="join()">我要参加</a></td>
+                    <td><a class="btn" tapmode="active" onclick="deleteActivity({{=it.id}})">删除</a></td>
+                    </tr>
+                    </table>
+                    </div>
+                </script>
+                <div id="act-content" style="background-color:gray"></div>
+                <script id="comment-template" type="text/x-dot-template">
+                    {{~    it.array:value:index    }}
+                    <div class="act-Item">
+                    <h3>{{=value.username}}</h3>
+                    <h4>{{=value.comments}}</h4>
+                    <h5>{{=value.time}}</h5>
+                    </div>
+                    {{~}}
+                </script>
+                <div id="comment-content"></div>
+            </div>
+            <!--<textarea rows="5" cols="20" ></textarea>-->
+        </div>
+    </body>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/common.js"></script>
+    <script type="text/javascript" src="../script/modifyPwd.js"></script>
+    <script type="text/javascript" src="../script/doT.min.js"></script>
+    <script type="text/javascript" src="../script/jquery-2.1.1.js"></script>
+    <script>
+		function deleteActivity(act_id) {
+			var name = $api.byId("act_name").innerHTML;
+			api.confirm({
+				title : '亲',
+				msg : '你确定要删除活动《' + name + '》么！',
+				buttons : ['删除', '我再想想']
+			}, function(ret, err) {
+				//coding...
+				if (ret.buttonIndex == 1) {
+					var deleteUrl = "/delete_act/" + act_id;
+					api.ajax({
+						url : serverAddr + deleteUrl,
+						method : 'post',
+						cache : false,
+						timeout : 30,
+						dataType : 'text',
+						returnAll : false
+					}, function(ret, err) {
+                        if(ret==='1')
+                        {    
+                            api.alert({
+                            msg : '删除成功!'
+                             });
+                            api.closeWin(); }
+					   }
+					//coding...
+					);
+
+				}
+			});
+		}
+
+		function setcomment(act_id) {
+			var uid = $api.getStorage('uid');
+			if (!uid) {
+				api.openWin({
+					name : 'userLogin',
+					url : './userLogin.html',
+					opaque : true,
+					vScrollBarEnabled : false
+				});
+				return;
+			}
+			api.prompt({
+				title : "我要评论",
+				buttons : ['确定', '取消']
+			}, function(ret, err) {
+				if (ret.buttonIndex == 1) {
+					//					api.alert({
+					//						msg : ret.text
+					//					});
+					commit(ret.text);
+				}
+			});
+		}
+
+		function join(id) {
+			var name = $api.byId("act_name").innerHTML;
+			api.confirm({
+				title : '亲',
+				msg : '你确定要参加《' + name + '》么！',
+				buttons : ['参加', '我再想想']
+			}, function(ret, err) {
+				//coding...
+				if (ret.buttonIndex == 1) {
+					api.alert({
+						msg : '已提交参加请求！'
+					});
+				}
+			});
+		}
+
+		function getcomment(id) {
+			var getCommentUrl = "/get_comment/" + id;
+			api.ajax({
+				url : serverAddr + getCommentUrl,
+				method : 'get',
+				cache : false,
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false
+			}, function(ret, err) {
+				testData = ret;
+				//      api.alert({msg:testData
+				//      },function(ret,err){
+				//      	//coding...
+				//      });
+				var evalText = doT.template($("#comment-template").text());
+				$("#comment-content").html(evalText(testData));
+			});
+		}
+
+		function getactdata(id) {
+			var getdataUrl = "/get_act/" + id;
+			api.ajax({
+				url : serverAddr + getdataUrl,
+				method : 'get',
+				cache : false,
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false
+			}, function(ret, err) {
+				testData = ret;
+				var evalText = doT.template($("#act-template").text());
+				$("#act-content").html(evalText(testData));
+			}
+			//coding...
+			);
+		}
+
+		function commit(comments) {
+			var act_id = $api.getStorage('act_id');
+			var username = $api.getStorage('uid');
+			//			alert(username);
+			//			alert(act_id);
+			//			alert(comments);
+			//          return ;
+			var mystr = "act_id=" + act_id + "&username=" + username + "&comments=" + comments;
+			//alert(mystr);
+			var publishUrl = '/set_comment?'
+			api.ajax({
+				url : serverAddr + publishUrl + mystr,
+				method : 'post',
+				cache : false,
+				timeout : 30,
+				dataType : 'text',
+				returnAll : false,
+			}, function(ret, err) {
+				if (ret === '1') {
+					api.alert({
+						msg : '评论成功！'
+					}, function(ret, err) {
+						getcomment(act_id);
+						//coding...
+					});
+				} else {
+					alert('评论失败！请重试！');
+				}
+			});
+		}
+
+		apiready = function() {
+			var pageParam = api.pageParam;
+			var act_id = pageParam.id;
+			$api.setStorage('act_id', act_id)
+			getactdata(act_id);
+			getcomment(act_id);
+			//      api.alert({msg:pageParam
+			//      },function(ret,err){
+			//      	//coding...
+			//      });
+		}
+    </script>
+</html>

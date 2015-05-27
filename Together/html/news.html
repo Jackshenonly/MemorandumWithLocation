@@ -34,6 +34,12 @@
                         <h4>{{=value.location}}</h4>
                         <h4>{{=value.details}}</h4>
                         <h4>{{=value.act_time}}</h4>
+                        {{? value.commonFriend }}
+                            
+                                <label style="text-align:right;">共同好友：{{=value.commonFriend}}</label>
+                        {{??}}
+                        {{?}}
+                        
                         </div>
                         {{~}}
                     </script>

@@ -59,14 +59,11 @@ function commit(comments) {
 
 function haveAtry()
 {
-		var username = $api.getStorage('uid');
-//			alert(username);
-//			alert(act_id);
-//			alert(comments);
-//          return ;
-			var mystr = "HostUsername=" + username;
+			var username = $api.getStorage('uid');
+
+			var mystr = username;
 			//alert(mystr);
-			var haveAtryUrl = '/haveAtry?'
+			var haveAtryUrl = '/haveAtry/'
 			api.ajax({
 				url : serverAddr + haveAtryUrl + mystr,
 				method : 'get',

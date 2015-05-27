@@ -1,257 +1,120 @@
-//var avatar = $api.dom('#avatar img');
-//var url = avatar.src;
-//var cover = $api.dom('#cover');
-//var pos = $api.offset(cover);
-//var coverImg = $api.dom('#cover .cover');
-//coverImg.src = url;
-//var css = 'width:'+ pos.w +'px; height:'+ pos.h +'px;';
-//$api.css(coverImg,css);
 
-//function openActDetail(){
-//api.openWin({
-//  name: 'actDetail',
-//  url: 'actDetail.html',
-//  delay: 400
-//});
-//}
-function openNewDetail(type, did) {
-    var name = ''
-    switch (type) {
-        case 't':
-            name = 'news-text';
-            break;
-        case 'v':
-            name = 'news-video';
-            break;
-    }
-    api.openWin({
-        name: name,
-        url: name + '.html',
-        pageParam: {newsId: did}
-    });
+function act_details(id){
+		api.openWin({
+		name: 'act-details',
+		url: './act-details-mine.html',
+		pageParam: {id: id }
+	});
 }
 
+function getdata(){
 
-function openActDetail(did) {
-    api.openWin({
-        name: 'actDetail',
-        url: 'actDetail.html',
-//		delay: 200,
-        pageParam: {dataId: did}
-    });
+	var uid = $api.getStorage('uid');
+	var URL = "/getPersonalData/";
+
+	api.ajax({
+				url : serverAddr + URL + uid,
+				method : 'get',
+				cache : false,
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false,
+			}, function(ret, err) {
+			
+			
+			initPersional(ret);
+			
+			});
+			
+
+
+
 }
 
-function openMer(did) {
-    api.openWin({
-        name: 'restaurant',
-        url: 'restaurant.html',
-        opaque: true,
-        pageParam: {dataId: did},
-        vScrollBarEnabled: false
-    });
+function initPersional(ret1)
+{
+	//alert(ret.NickName);
+
+    
+    var personalCenter = api.require('personalCenter');
+
+personalCenter.open({
+    imgPath:'widget://image/jack.jpg',
+    placeholderImg: 'widget://image/jack.jpg',
+    showLeftBtn:false,
+    showRightBtn:false,
+    y:0,
+    h:200,
+    userName:ret1.NickName+"("+ret1.Gender+")",
+    count: ret1.Credit,
+  
+  	fixedOn:'user',
+    btnArray:[
+        {
+        	title:"我的活动",
+        	titleColor:'#FFFFFF',
+        	count:ret1.myActivity.count,
+            bgImg:'widget://image/userbg.png',
+            
+    		
+    },
+	        {
+        	title:"我的收藏",
+        	titleColor:'#FFFFFF',
+        	count:'100',
+            bgImg:'widget://image/userbg.png',
+    		
+    },
+    	        {
+        	title:"正在进行的活动",
+        	titleColor:'#FFFFFF',
+        	count:'100',
+            bgImg:'widget://image/userbg.png',
+    		
+    },
+    ]
+    },function(ret,err){
+	
+		display(ret.click,ret1);
+});
+
+
 }
 
-//init personal center
-function initPersonalCenter(json) {
-//  api.showProgress({
-//      title: '加载中...',
-//      modal: false
-//  });
-    json = json || {};
-    if (!json.nickname) {
-        return;
-    }
+function display(id,ret1){
+	
+			if(id ==0)
+	{	
 
-    var uid = $api.getStorage('uid');
-    var getUserAct_favUrl = '/user?filter=';
-    var act_urlParam = {
-        include: ["act_fav", "news_fav", "mer_fav"],
-        where: {
-            id: uid
-        }
-    };
-    ajaxRequest(getUserAct_favUrl + JSON.stringify(act_urlParam), 'GET', '', function (ret, err) {
-        if (ret) {
-            var pc = api.require('personalCenter');
-            var headerH = api.pageParam.headerHeight;
-            var photo = json.photo || 'widget://image/userTitle.png';
-            var point = json.point || 0;
-            var actFav = ret[0].act_fav.length || 0;
-            var merFav = ret[0].mer_fav.length || 0;
-            var newsFav = ret[0].news_fav.length || 0;
-
-            var actFavArr = [], merFavArr = [], newsFavArr = [];
-            for (var i in ret[0].act_fav) {
-                actFavArr[i] = ret[0].act_fav[i].activity;
-            }
-            for (var i in ret[0].mer_fav) {
-                merFavArr[i] = ret[0].mer_fav[i].merchant;
-            }
-            for (var i in ret[0].news_fav) {
-                newsFavArr[i] = ret[0].news_fav[i].news;
-            }
-            localStorage.setItem('actFavArr', actFavArr);
-            localStorage.setItem('merFavArr', merFavArr);
-            localStorage.setItem('newsFavArr', newsFavArr);
-            pc.open({
-                y: 0,
-                height: 200,
-                fixedOn: 'user',
-                fixed: true,
-                imgPath: photo,
-                placeHoldImg: photo,
-                showLeftBtn: false,
-                showRightBtn: false,
-                username: json.nickname,
-                count: point,
-                modButton: {
-                    bgImg: 'widget://image/edit.png',
-                    lightImg: 'widget://image/edit.png'
-                },
-                btnArray: [
-                    {
-                        bgImg: 'widget://image/personal_btn_nor.png',
-                        lightImg: 'widget://image/personal_btn_light.png',
-                        selectedImg: 'widget://image/personal_btn_sele.png',
-                        title: '活动收藏',
-                        count: actFav,
-                        titleColor: '#ffffff',
-                        titleLightColor: '#55abce',
-                        countColor: '#ffffff',
-                        countLightColor: '#55abce'
-                    },
-                    {
-                        bgImg: 'widget://image/personal_btn_nor.png',
-                        lightImg: 'widget://image/personal_btn_light.png',
-                        selectedImg: 'widget://image/personal_btn_sele.png',
-                        title: '商家收藏',
-                        count: merFav,
-                        titleColor: '#ffffff',
-                        titleLightColor: '#55abce',
-                        countColor: '#ffffff',
-                        countLightColor: '#55abce'
-                    },
-                    {
-                        bgImg: 'widget://image/personal_btn_nor.png',
-                        lightImg: 'widget://image/personal_btn_light.png',
-                        selectedImg: 'widget://image/personal_btn_sele.png',
-                        title: '新闻收藏',
-                        count: newsFav,
-                        titleColor: '#ffffff',
-                        titleLightColor: '#55abce',
-                        countColor: '#ffffff',
-                        countLightColor: '#55abce'
-                    }
-                ]
-            }, function (ret, err) {
-
-
-                $api.byId('activity').innerHTML = '';
-                if (ret.click === 0) {
-                    getFavData('activity', localStorage.getItem('actFavArr'));
-                }
-                if (ret.click === 1) {
-                    getFavData('merchant', localStorage.getItem('merFavArr'));
-                }
-                if (ret.click === 2) {
-                    getFavData('news', localStorage.getItem('newsFavArr'));
-                }
-            });
-            api.hideProgress();
-            getFavData('activity', localStorage.getItem('actFavArr'));
-        } else {
-            api.toast({msg: err.msg, location: 'middle'})
-            api.hideProgress();
-        }
-
-    })
+		var evalText = doT.template($("#act-template").text());
+		$("#act-content").html(evalText(ret1.myActivity));
+		
+	}
+		if(id ==1)
+	{	alert('我的收藏');	}
+		if(id ==2)
+	{	alert('正在进行');	}
+	
+		
 }
-
-
-function getFavData(type, ids) {
-    var getUserFavUrl = '/' + type + '?filter=';
-    var arr = ids.split(',');
-    var urlParam = {
-        where: {
-            id: {
-                inq: arr
-            }
-        }
-    };
-    ajaxRequest(getUserFavUrl + JSON.stringify(urlParam), 'get', '', function (ret, err) {
-        switch (type) {
-            case 'activity':
-                activityCallBack(ret, err);
-                break;
-            case 'merchant':
-                merchantCallBack(ret, err)
-                break;
-            case 'news':
-                newsCallBack(ret, err)
-                break;
-        }
-    })
-}
-
-function activityCallBack(ret, err) {
-    if (ret) {
-        var data = {};
-        data.favType = 'act';
-        data.ret = ret;
-        var content = $api.byId('activity');
-        var tpl = $api.byId('template').text;
-        var tempFn = doT.template(tpl);
-        $api.byId('activity').innerHTML = '';
-        $api.append(content, tempFn(data));
-    } else {
-        alert(JSON.stringify(err))
-    }
-}
-function merchantCallBack(ret, err) {
-    if (ret) {
-        var content = $api.byId('activity');
-        var tpl = $api.byId('template').text;
-        var tempFn = doT.template(tpl);
-        $api.byId('activity').innerHTML = '';
-        $api.append(content, tempFn(data));
-    } else {
-        alert(JSON.stringify(err))
-    }
-}
-function newsCallBack(ret, err) {
-    if (ret) {
-        var data = {};
-        data.favType = 'news';
-        data.ret = ret;
-        var content = $api.byId('activity');
-        var tpl = $api.byId('template').text;
-        var tempFn = doT.template(tpl);
-        $api.byId('activity').innerHTML = '';
-        $api.append(content, tempFn(data));
-    } else {
-        alert(JSON.stringify(err))
-    }
-}
-
-
-function init() {
-    var photoUrl = 'http://file.apicloud.com/mcm/A6965864070945/91f4a5f93b962c7c0f4e83effc4973fd.png';
-    initPersonalCenter({
-        nickname: 'jackshen',
-        photo: photoUrl,
-        point: 0
-    });
-}
-
-function updateInfo() {
-    var pc = api.require('personalCenter');
-    pc.close();
-    init();
-}
-
 apiready = function () {
+	
+	getdata();
+	api.setRefreshHeaderInfo({
+	visible: true,
+        // loadingImgae: 'wgt://image/refresh-white.png',
+        bgColor: '#f2f2f2',
+        textColor: '#4d4d4d',
+        textDown: '下拉刷新...',
+        textUp: '松开刷新...',
+        showTime: true
+    },function(ret,err){
+    	//coding...
+    	getdata();
+    	api.refreshHeaderLoadDone();
+    });
+	
 
-    init();
-
+	
 };
 

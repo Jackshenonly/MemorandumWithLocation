@@ -296,6 +296,45 @@ def get_act_list(username):
 
     return jsonify(testData)
 
+@app.route('/get_act_list_halfFriend/<username>')
+def get_act_list_halfFriend(username):
+
+    testData = {"array":[]}
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('select FriendUsername from friends where HostUsername=%s',[username])
+    data1 = cursor.fetchall()
+   # mstr = ""
+   # ostr = ""
+    for x in data1:
+        #mstr +=x[0] + "\t"
+        cursor.execute('select FriendUsername from friends where HostUsername=%s',[x[0]])
+        data2 = cursor.fetchall()
+        for  y in data2:
+            
+            if y not in data1:
+                # ostr +=y[0] + "\t"
+                cursor.execute('select * from activity where publisher=%s',[y[0]])
+                data3 = cursor.fetchall()
+                for i in data3:
+                        item = {}
+                        item["id"]       = i[0]
+                        item["act_name"] = i[1]
+                        item["publisher"] = i[2]
+                        item["details"]  = i[3]
+                        item["location"] = i[4]
+                        item["act_time"] = str(i[5])
+                        item["pub_time"] = str(i[6])
+                        item["type"]     = i[7]
+                        item["commonFriend"] = x
+                        testData["array"].append(item)
+    # return mstr +"HHHHHH    "+ostr
+
+
+    return jsonify(testData)
+
+
+
 @app.route("/get_act/<act_id>")
 def get_act(act_id):
     db = get_db()
@@ -313,6 +352,8 @@ def get_act(act_id):
         item["act_time"] = str(i[5])
         item["pub_time"] = str(i[6])
         item["type"]     = i[7]
+        item["like"] = str(i[8])
+        item["dislike"] = str(i[9])
     return jsonify(item)
 
 @app.route('/get_comment/<act_id>')
@@ -371,17 +412,23 @@ def add_friend():
         db.commit()
 
         return "1"
-@app.route("/haveAtry")
-def haveAtry():
-    HostUsername = request.args.get("HostUsername")
+@app.route("/haveAtry/<username>")
+def haveAtry(username):
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("select distinct FriendUsername from friends where HostUsername !=%s and FriendUsername !=%s and FriendUsername!=HostUsername",[HostUsername,HostUsername])
-    datas = cursor.fetchall()
-    mstr = ""
-    for data in datas:
-        mstr += data[0]+"\n"
-    return mstr
+    cursor.execute('select FriendUsername from friends where HostUsername=%s',[username])
+    data1 = cursor.fetchall()
+   # mstr = ""
+    ostr = ""
+    for x in data1:
+        #mstr +=x[0] + "\t"
+        cursor.execute('select FriendUsername from friends where HostUsername=%s',[x[0]])
+        data2 = cursor.fetchall()
+        for  y in data2:
+            
+            if y not in data1:
+                 ostr +=y[0] +u"    共同好友："+x[0] +"\n"
+    return ostr
 
 @app.route("/get_friend/<HostUsername>")
 def get_friend(HostUsername):
@@ -399,7 +446,129 @@ def get_friend(HostUsername):
         testData["array"].append(item)
 
     return jsonify(testData)
+
+
+@app.route('/getChatList/<username>')
+def getChatList(username):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("select distinct FromUserID from messages where ToUserId=%s and MessageTypeid=1",[username])
+    data = cursor.fetchall()
+    testData = {"array":[]}
+    for x in data :
+        testData["array"].append(x[0])
+
+    return jsonify(testData)
+
+
+@app.route('/getChatdata')
+def getChatdata():
+    toUserid = request.args.get("toUserid")
+    fromUserid = request.args.get("fromUserid")
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("select *  from messages where ToUserId=%s and FromUserID=%s or ToUserId=%s and FromUserID=%s order by MessageTime",[toUserid,fromUserid,fromUserid,toUserid])
+    data = cursor.fetchall()
+    testData = {"array":[]}
+    for x in data :
+        item = {}
+        item["id"] = x[0]
+        item["FromUserID"] = x[1]
+        item["ToUserId"] = x[2]
+        item["Message"] = x[3]
+        item["MessageTypeid"] = x[4]
+        item["MessageStatus"] = x[5]
+        item["MessageTime"] = x[6]
+        item["me"] = toUserid
+
+        testData["array"].append(item)
+
+    return jsonify(testData)
+
+
+@app.route('/sendMessage',methods=["POST","GET"])
+def sendMessage():
+    if request.method == "GET":
+        return "0"
+    else :
+        toUserid = request.args.get("toUserid")
+        fromUserid = request.args.get("fromUserid")
+        sendMessage = request.args.get("sendMessage")
+        mtime = time.strftime("%Y-%m-%d %H:%M:%S")
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("insert into messages(FromUserId,ToUserId,Message,MessageTime) values(%s,%s,%s,%s)",[fromUserid,toUserid,sendMessage,mtime])
+        db.commit()
+        print "yes"
+        return "1"
+
+@app.route('/getPersonalData/<username>')
+def getPersonalData(username):
+    s = {}
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('select NickName,Gender,Credit from user where username=%s',[username])
+    data = cursor.fetchall()
     
+    s['NickName'] = data[0][0]
+    s['Gender']=data[0][1]
+    s['Credit'] = data[0][2]
+    cursor.execute('select count(*) from activity where publisher=%s',[username])
+    s['myActivity']={}
+    s['myActivity']['count']= str(cursor.fetchone()[0])
+    s['myActivity']['array']=[]
+
+    cursor.execute('select * from activity  where publisher=%s order by pub_time desc',[username])
+    data = cursor.fetchall()
+    
+    
+    for i in data:
+        item = {}
+        item["id"]       = i[0]
+        item["act_name"] = i[1]
+        item["publisher"] = i[2]
+        item["details"]  = i[3]
+        item["location"] = i[4]
+        item["act_time"] = str(i[5])
+        item["pub_time"] = str(i[6])
+        item["type"]     = i[7]
+        s['myActivity']['array'].append(item)
+
+
+    return jsonify(s)
+
+
+
+@app.route('/delete_act/<act_id>',methods=['POST','GET'])
+def delete_act(act_id):
+
+    if request.method =='POST':
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('delete from activity where id = %s',[act_id])
+        db.commit()
+        return '1'
+
+    else:
+        return '0'
+@app.route('/LikeOrDislike/<mod>',methods=['POST','GET'])
+def LikeOrDislike(mod):
+    if request.method =='POST':
+
+        flag = mod[0]
+        act_id = mod[1:]
+        db = get_db()
+        cursor = db.cursor()
+        if(flag=='T'):
+            cursor.execute('update activity set mlike=mlike +1 where id = '+act_id)
+        if(flag=='F'):
+            cursor.execute('update activity set mdislike=mdislike +1 where id = '+act_id)    
+        db.commit()
+
+        return "1"
+
+    else:
+        return "0"
 
 if __name__ == '__main__':
     app.debug = True

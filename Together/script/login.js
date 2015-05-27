@@ -35,6 +35,7 @@ function ensure() {
     	if(ret==="1")
     	{
     		$api.setStorage('uid', name);
+    		$api.setStorage('pwd',pwd);
     		
     		setTimeout(function () {
                 api.closeWin();
@@ -48,26 +49,7 @@ function ensure() {
     
     
     
-//  var bodyParam = {
-//      username: name,
-//      password: pwd
-//  	}
-// 	
-// 	
-//  ajaxRequest(loginUlr, 'post', JSON.stringify(bodyParam), function (ret, err) {
-//      if (ret) {
-//          $api.setStorage('uid', ret.userId);
-//          $api.setStorage('token', ret.id);
-//          setTimeout(function () {
-//              api.closeWin();
-//          }, 100);
-//      } else {
-//          api.alert({
-//              msg: err.msg
-//          });
-//      }
-//      api.hideProgress();
-//  })
+
     
     }
 	else

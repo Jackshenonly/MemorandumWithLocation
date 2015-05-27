@@ -70,6 +70,23 @@
                     <div class="input-wrap last">
                     其他说明：                     <textarea id="details" rows="5" cols="20" class="details" readonly   id="details" >{{=it.details}}</textarea>
                     </div>
+                    <div  style="position:fixed;top:60px;right:20px;weight:40px;height:90px" >
+                    <table>
+                    <tr>
+                    <td><img src="../image/like.png" style="height:30px;weight:30px" onclick="like('T',{{=it.id}})"></img></td>
+                    <td><label id="location" class="txt" >{{=it.like}}</label></td>
+                    </tr>
+                    <tr>
+                        <td><img src="../image/dislike.png" style="height:30px;weight:30px" onclick="like('F',{{=it.id}})"></img></td>
+                        <td><label id="location" class="txt" >{{=it.dislike}}</label></td>
+                    </tr>
+                    <tr>
+                        <td><img src="../image/clection.png" style="height:30px;weight:30px" onclick=""></img></td>
+                        <td></td>
+                        <!--src="../image/life-l.png"-->
+                    </tr>
+                    </table>
+                    </div>
                 </script>
                 <div id="act-content" style="background-color:gray"></div>
                 <script id="comment-template" type="text/x-dot-template">
@@ -100,130 +117,136 @@
     <script type="text/javascript" src="../script/doT.min.js"></script>
     <script type="text/javascript" src="../script/jquery-2.1.1.js"></script>
     <script>
-		function setcomment(act_id) {
-		var uid = $api.getStorage('uid');
-        if(!uid){
-            api.openWin({
-                name: 'userLogin',
-                url: './userLogin.html',
-                opaque: true,
-                vScrollBarEnabled:false
-            });
-            return;
-        }
+function like(mod,act_id)
+{
+    
+    api.ajax({
+url : serverAddr + '/LikeOrDislike/' + mod + act_id,
+method : 'post',
+cache : false,
+timeout : 30,
+dataType : 'text',
+returnAll : false
+}, function(ret, err) {
 
-		
-			api.prompt({
-				title : "我要评论",
-				buttons : ['确定', '取消']
-			}, function(ret, err) {
-				if (ret.buttonIndex == 1) {
-					//					api.alert({
-					//						msg : ret.text
-					//					});
-				    commit(ret.text);
-				}
-			});  
-		}
 
-		function join(id) {
-			var name = $api.byId("act_name").innerHTML;
-			api.confirm({
-				title : '亲',
-				msg : '你确定要参加《' + name + '》么！',
-				buttons : ['参加', '我再想想']
-			}, function(ret, err) {
-				//coding...
-				if (ret.buttonIndex == 1) {
-					api.alert({
-						msg : '已提交参加请求！'
-					});
-				}
-			});
-		}
-
-		function getcomment(id) {
-			var getCommentUrl = "/get_comment/" + id;
-			api.ajax({
-				url : serverAddr + getCommentUrl,
-				method : 'get',
-				cache : false,
-				timeout : 30,
-				dataType : 'json',
-				returnAll : false
-			}, function(ret, err) {
-				testData = ret;
-				//      api.alert({msg:testData
-				//      },function(ret,err){
-				//      	//coding...
-				//      });
-				var evalText = doT.template($("#comment-template").text());
-				$("#comment-content").html(evalText(testData));
-			});
-		}
-
-		function getactdata(id) {
-			var getdataUrl = "/get_act/" + id;
-			api.ajax({
-				url : serverAddr + getdataUrl,
-				method : 'get',
-				cache : false,
-				timeout : 30,
-				dataType : 'json',
-				returnAll : false
-			}, function(ret, err) {
-				testData = ret;
-				var evalText = doT.template($("#act-template").text());
-				$("#act-content").html(evalText(testData));
-			}
-			//coding...
-			);
-		}
-
-		function commit(comments) {
-		    var act_id = $api.getStorage('act_id');
-			var username = $api.getStorage('uid');
+});
+    getactdata(act_id);
+}
+function setcomment(act_id) {
+var uid = $api.getStorage('uid');
+if (!uid) {
+api.openWin({
+name : 'userLogin',
+url : './userLogin.html',
+opaque : true,
+vScrollBarEnabled : false
+});
+return;
+}
+api.prompt({
+title : "我要评论",
+buttons : ['确定', '取消']
+}, function(ret, err) {
+if (ret.buttonIndex == 1) {
+//					api.alert({
+//						msg : ret.text
+//					});
+commit(ret.text);
+}
+});
+}
+function join(id) {
+var name = $api.byId("act_name").innerHTML;
+api.confirm({
+title : '亲',
+msg : '你确定要参加《' + name + '》么！',
+buttons : ['参加', '我再想想']
+}, function(ret, err) {
+//coding...
+if (ret.buttonIndex == 1) {
+api.alert({
+msg : '已提交参加请求！'
+});
+}
+});
+}
+function getcomment(id) {
+var getCommentUrl = "/get_comment/" + id;
+api.ajax({
+url : serverAddr + getCommentUrl,
+method : 'get',
+cache : false,
+timeout : 30,
+dataType : 'json',
+returnAll : false
+}, function(ret, err) {
+testData = ret;
+//      api.alert({msg:testData
+//      },function(ret,err){
+//      	//coding...
+//      });
+var evalText = doT.template($("#comment-template").text());
+$("#comment-content").html(evalText(testData));
+});
+}
+function getactdata(id) {
+var getdataUrl = "/get_act/" + id;
+api.ajax({
+url : serverAddr + getdataUrl,
+method : 'get',
+cache : false,
+timeout : 30,
+dataType : 'json',
+returnAll : false
+}, function(ret, err) {
+testData = ret;
+var evalText = doT.template($("#act-template").text());
+$("#act-content").html(evalText(testData));
+}
+//coding...
+);
+}
+function commit(comments) {
+var act_id = $api.getStorage('act_id');
+var username = $api.getStorage('uid');
 //			alert(username);
 //			alert(act_id);
 //			alert(comments);
 //          return ;
-			var mystr = "act_id=" + act_id + "&username=" + username + "&comments=" + comments;
-			//alert(mystr);
-			var publishUrl = '/set_comment?'
-			api.ajax({
-				url : serverAddr + publishUrl + mystr,
-				method : 'post',
-				cache : false,
-				timeout : 30,
-				dataType : 'text',
-				returnAll : false,
-			}, function(ret, err) {
-				if (ret === '1') {
-				
-					api.alert({
-						msg : '评论成功！'
-					}, function(ret, err) {
-					
-						getcomment(act_id);
-						//coding...
-					});
-				} else {
-					alert('评论失败！请重试！');
-				}
-			});
-		}
-
-		apiready = function() {
-			var pageParam = api.pageParam;
-			var act_id = pageParam.id;
-			
-			$api.setStorage('act_id',act_id)
-			getactdata(act_id);
-			getcomment(act_id);
-			//      api.alert({msg:pageParam
-			//      },function(ret,err){
-			//      	//coding...
-			//      });
-		}
+var mystr = "act_id=" + act_id + "&username=" + username + "&comments=" + comments;
+//alert(mystr);
+var publishUrl = '/set_comment?'
+api.ajax({
+url : serverAddr + publishUrl + mystr,
+method : 'post',
+cache : false,
+timeout : 30,
+dataType : 'text',
+returnAll : false,
+}, function(ret, err) {
+if (ret === '1') {
+api.alert({
+msg : '评论成功！'
+}, function(ret, err) {
+getcomment(act_id);
+//coding...
+});
+} else {
+alert('评论失败！请重试！');
+}
+});
+}
+apiready = function() {
+var pageParam = api.pageParam;
+var act_id = pageParam.id;
+$api.setStorage('act_id', act_id)
+getactdata(act_id);
+getcomment(act_id);
+//      api.alert({msg:pageParam
+//      },function(ret,err){
+//      	//coding...
+//      });
+}
     </script>
 </html>

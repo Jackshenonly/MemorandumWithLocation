@@ -51,7 +51,7 @@ function openTab(type,tid){
     var headerPos = $api.offset(header);
     var height = api.winHeight - navPos.h - headerPos.h;
     
-    type = type || 'main';
+    type = type || 'news';
 
     var actTab = $api.dom('#nav .active');
     $api.removeCls(actTab,'active');
@@ -275,5 +275,5 @@ apiready = function(){
     api.setStatusBarStyle({
         style: 'light'
     });
-    openTab('main','548ec1e708d4718e7d771bbe');
+    openTab('news','548ec1e708d4718e7d771bbe');
 };

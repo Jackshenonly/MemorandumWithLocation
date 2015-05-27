@@ -1,12 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0, width=device-width"/>
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="format-detection" content="address=no" />
         <title>api</title>
-        <link rel="stylesheet" type="text/css" href="./css/api.css" />
-        <link rel="stylesheet" type="text/css" href="./css/common.css" />
-        <link rel="stylesheet" type="text/css" href="./css/index.css" />
+        <link rel="stylesheet" type="text/css" href="../css/api.css" />
+        <link rel="stylesheet" type="text/css" href="../css/common.css" />
+        <link rel="stylesheet" type="text/css" href="../css/act-publish.css" />
         <style>
 			/*会话消息容器*/
 			#messageList {
@@ -99,29 +101,162 @@
     </head>
     <body>
         <div id="wrap">
-            <div id="messageList">
-                <div class="sender">
-                    <div class="sender-avatar">
-                        <img src="chatTemplateExample2_files/cat.jpg">
-                    </div>
-                    <div class="sender-cont">
-                        <div class="right_triangle"></div>
-                        <span><img src="发送用户头像" width="30" height="30">发送内容</span>
-                        <div class="status">
-                            <!--发送状态-->
+            <div id="header">
+                <a class="back-icon" tapmode="" onclick="api.closeWin()"></a>
+                <h1 id="username"></h1>
+            </div>
+            <div id="main">
+                <div id="messageList">
+                    <script id="chatlist-template" type="text/x-dot-template">
+                    {{~ it.array:value:index  }}
+                        {{? value.FromUserID==value.me }}
+                        <div class="sender">
+                        <div class="sender-avatar">
+                        <img src="../image/emotion/zem14.png">
                         </div>
-                    </div>
-                </div>
-                <div class="receiver">
-                    <div class="receiver-avatar">
-                        <img src="对方用户头像">
-                    </div>
-                    <div class="receiver-cont">
+                        <div class="sender-cont">
+                        <div class="right_triangle"></div>
+                        <span><img src="" >{{=value.Message}}</span>
+                        <div class="status">
+                        <!--发送状态-->
+                        </div>
+                        </div>
+                        </div>
+                        {{??}}
+                        <div class="receiver">
+                        <div class="receiver-avatar">
+                        <img src="../image/jack.jpg">
+                        </div>
+                        <div class="receiver-cont">
                         <div class="left_triangle"></div>
-                        <span>发送内容</span>
-                    </div>
+                        <span>{{=value.Message}}</span>
+                        </div>
+                        </div>
+                        </div>
+                        {{?}}
+                    {{~}}
+                    </script>
+                    <div id="chatlist-content"  class="chatlist"></div>
                 </div>
             </div>
-        </div>
     </body>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/common.js"></script>
+    <script type="text/javascript" src="../script/modifyPwd.js"></script>
+    <script type="text/javascript" src="../script/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="../script/doT.min.js"></script>
+    <script>
+		function getchatdata() {
+			api.showProgress({
+				title : '加载中...',
+				modal : false
+			});
+			var fromUserid = api.pageParam.fromuser;
+			//  alert(fromUserid);
+			var toUserid = $api.getStorage('uid');
+			var mystr = "toUserid=" + toUserid + "&fromUserid=" + fromUserid;
+			//alert(mystr);
+			var getchatdataURL = '/getChatdata?';
+			api.ajax({
+				url : serverAddr + getchatdataURL + mystr,
+				method : 'get',
+				cache : false,
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false,
+			}, function(ret, err) {
+/*
+ret = 
+			 {
+  "array": [
+    {
+      "FromUserID": "jackshen", 
+      "Message": "\u6211\u4eec\u4e00\u8d77\u7ec4\u4e2a\u961f\u5427", 
+      "MessageStatus": "Thu, 14 May 2015 00:38:48 GMT", 
+      "MessageTime": 1, 
+      "MessageTypeid": 0, 
+      "ToUserId": "alen", 
+      "id": 1
+    }, 
+    {
+      "FromUserID": "jackshen", 
+      "Message": "\u53bb\u54ea\uff1f", 
+      "MessageStatus": "Thu, 14 May 2015 00:58:45 GMT", 
+      "MessageTime": 1, 
+      "MessageTypeid": 0, 
+      "ToUserId": "alen", 
+      "id": 4
+    }
+  ]
+}
+*/
+			
+				var evalText = doT.template($("#chatlist-template").text());
+				$("#chatlist-content").html(evalText(ret));
+			});
+			api.hideProgress();
+		}
+
+		apiready = function() {
+		
+			var fromUserid = api.pageParam.fromuser;
+			$api.byId("username").innerHTML = fromUserid;
+			
+			getchatdata();
+			
+			
+			var addButtonAry = new Array();
+			for (var i = 0; i < 3; i++) {
+				addButtonAry[i] = {
+					normal : "widget://image/chatBox_album1.png",
+					title : "相册"
+				};
+			}
+			var obj = api.require('chatBox');
+			obj.open({
+				switchButton : {
+					faceNormal : "widget://image/chatBox_face1.png",
+					addNormal : "widget://image/chatBox_add1.png",
+					keyboardNormal : "widget://image/chatBox_key1.png"
+				},
+				sourcePath : "widget://image/emotion",
+				addButtons : addButtonAry
+			}, function(ret, err) {
+				if (ret.click) {
+					api.alert({
+						msg : "用户点击了第" + ret.index + "个按钮"
+					});
+				} 
+				else {				
+//					api.alert({
+//						title : '输入的内容是',
+//						msg : ret.msg,
+//						buttons : ['确定']
+//					});
+                    var toUserid = api.pageParam.fromuser;
+                    
+                    var fromUserid = $api.getStorage('uid');
+                    
+                    var mystr = "toUserid=" + toUserid + "&fromUserid=" + fromUserid+"&sendMessage="+ret.msg;
+					var sendUrl = "/sendMessage?";
+					api.ajax({
+	                    url : serverAddr + sendUrl + mystr,
+                        method : 'post',
+                        cache : false,
+                        timeout : 30,
+                        dataType : 'text',
+                        returnAll : false,
+                    },function(ret,err){
+
+                    	if (ret==="1")
+                    	{getchatdata();}
+                    	else
+                    	{alert("发送失败！");}
+                    });
+					
+					
+				}
+			});
+		}
+    </script>
 </html>

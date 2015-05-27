@@ -129,60 +129,50 @@ function initPage(id) {
 }
 
 function getData(id) {
-/*
-//  var getTabBarActivityUrl = '/tabBar?filter=';
-//  var urlParam = {
-//      include: ["activity"],
-//      where: {
-//          id: id
-//      }
-//  };
-//  ajaxRequest(getTabBarActivityUrl + JSON.stringify(urlParam), 'GET', '', function (ret, err) {
-//      if (ret) {
-//          var content = $api.byId('act-content');
-//          var tpl = $api.byId('act-template').text;
-//          var tempFn = doT.template(tpl);
-//          content.innerHTML = tempFn(ret[0].activity);
-//      } else {
-//          api.alert({
-//              msg: err.msg
-//          });
-//      }
-//      api.hideProgress();
-//  })
-*/	
+
+	api.showProgress({});
 	var testData;
 	var username = $api.getStorage('uid');;
-	var getdataUrl = "/get_act_list/"
-	api.ajax({
-	    url:serverAddr + getdataUrl+username,
-	    method:'get',
-	    cache: false,
-        timeout: 30,
-        dataType: 'json',
-        returnAll: false
-    },function(ret,err){
-    	testData = ret;
-    	var onlyMine = {"array":[]};
-	for ( var i=0;i < testData.array.length;i++)
-	{
-			if(testData.array[i].username === username)
-			{
-				onlyMine.array.push(testData.array[i]);
-			}
-	}
+	
 	if (id==1)
+	{	
+		
+		var getdataUrl = "/get_act_list_halfFriend/"
+		api.ajax({
+	        url:serverAddr + getdataUrl+username,
+	    	method:'get',
+	    	cache: false,
+        	timeout: 30,
+        	dataType: 'json',
+       		returnAll: false
+        },function(ret,err){
+        	//coding...
+        	testData = ret;
+        	var evalText = doT.template($("#act-template").text());
+			$("#act-content").html(evalText(testData));
+        });
+	}
+	else
 	{
-		var evalText = doT.template($("#act-template").text());
-		$("#act-content").html(evalText(onlyMine));
-	}else
-	{
-		var evalText = doT.template($("#act-template").text());
-		$("#act-content").html(evalText(testData));
+		var getdataUrl = "/get_act_list/"
+		api.ajax({
+	        url:serverAddr + getdataUrl+username,
+	    	method:'get',
+	    	cache: false,
+        	timeout: 30,
+        	dataType: 'json',
+       		returnAll: false
+        },function(ret,err){
+        	//coding...
+        	testData = ret;
+        	var evalText = doT.template($("#act-template").text());
+			$("#act-content").html(evalText(testData));
+        });
+		
 	}
     	//coding...
-    });
-
+    
+	api.hideProgress();
 
 
 //	var testData = {"array":
@@ -251,8 +241,8 @@ itemSize:{
               bgSelected:"#ff00000"
         },
         {
-              title:"我的动态",
-               titleSelected:"我的动态",
+              title:"半个陌生人",
+               titleSelected:"半个陌生人",
               bg:"#ffff00",
             alpha: 0.8,
               bgSelected:"#ff00000"
@@ -267,13 +257,15 @@ itemSize:{
     },
     selectedIndex:0
 };
-
+var index = 0;
 function callback(ret, err){
     if(! ret){
         api.alert({title: "出错了", msg: err["msg"]});
         return;
     }
 	getData(ret.index);
+	window.index = ret.index;
+//	alert(window.index);
     //api.alert({title: "提示", msg: "您点击了 "+ret.id+"   " +ret.index+ "导航项!"});
 }
 
@@ -293,13 +285,16 @@ navigationBar.open(params, callback);
         //getBanner(api.pageParam.tid);
         //initPage(api.pageParam.tid);
         //alert("刷新完成！\n不过现在数据是死的！");
-        getData(0);
+        getData(window.index);
+//      alert(window.index);
         api.refreshHeaderLoadDone();
     });
     api.addEventListener({
         name: 'scrolltobottom'
     }, function (ret, err) {
-    	alert("已经拉到底部了！");
+    	api.toast({
+	        msg:'已经没有啦！'
+        });
         //getBanner(api.pageParam.tid);
         //initPage(api.pageParam.tid);
     });
