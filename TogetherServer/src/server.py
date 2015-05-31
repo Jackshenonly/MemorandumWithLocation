@@ -40,94 +40,9 @@ def close_db_connection(exception):
 def _index():
     return "I am jack"
 ###################################
-@app.route('/announce_detail/<title>',methods=['GET','POST'])
-def announce_detail(title):
-    if session['username']:
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('select title,author,date,text from announcement where title = %s',[title])
-        details = cursor.fetchone()
-        return render_template('announce_detail.html',details = details)
-    return redirect(url_for('login'))
-
-@app.route('/announce_lists',methods=['GET','POST'])
-def announce_lists():
-    if session['username']:
-        db = get_db()  
-        cursor = db.cursor()
-        cursor.execute("select title,author,date from announcement order by date desc")
-        datas = cursor.fetchall() 
-        return render_template('announce_lists.html',head=u"公告",datas = datas)
-    return redirect(url_for('login'))
-
-@app.route('/personal_modify/<username>',methods=['GET','POST'])
-def personal_modify(username):
-    if session.get('username'):
-        password = request.form['password']
-        NickName = request.form['NickName']
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute("update user set password = %s,nickname = %s where no = %s",[password,NickName,username])
-        db.commit()
-        flash(u"Modify Successfully!")
-        return redirect(url_for('personal_info',username=username))
-    return redirect(url_for('login'))
-
-@app.route('/personal_info/<username>',methods=['POST','GET'])
-def personal_info(username):
-    if session.get("username"):
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute("select * from user where no = %s",[username])
-        info = cursor.fetchone()
-        return render_template('personal_info.html',info = info,head=u"个人设置")
-    
-    return redirect(url_for('login'))    
-
-@app.route('/show_lists/<depart>',methods=['GET','POST'])
-def show_lists(depart):
-    if session.get("username"):
-            session['depart'] = depart
-            db = get_db()
-            cur = db.cursor()
-            cur.execute('select major,name,sex,depart,status,average from communists where depart = %s',[depart])
-            lists = cur.fetchall()
-            return render_template('show_lists.html', lists=lists,head  = depart)
-    return redirect(url_for('login'))
-
-@app.route('/add_comments/<cname>', methods=['POST','GET'])
-def add_comments(cname):
-    if not session['username']:
-        return render_template('login.html',error = "Please Log in!")
-    if (int(request.form.get('score'))) > 100 or (int(request.form.get('score')))<0:
-        return render_template('show_comments.html',cname =cname, error = u'请在0~100之间输入！')
-    mytime = time.strftime("%Y-%m-%d %H:%M:%S")
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("select nickname from user where no = %s",[session['username']])
-    nickname = cursor.fetchone()[0]
-    cursor.execute('insert into comments (name,nickname,cname,score,date,text) values (%s, %s, %s, %s, %s, %s)',
-                [ session['username'], nickname,cname,request.form.get('score'), mytime, request.form.get('text') ])
-    cursor.execute('update communists set score=score + %s,count = count +1 where name = %s',
-               [request.form.get('score'),  cname  ])
-    db.commit()
-    cursor.execute('update communists set average = score / count where name = %s',[ cname ])
-    db.commit()
-    
-    return redirect(url_for('show_comments',cname= cname ))
-
-@app.route('/show_comments/<cname>')
-def show_comments(cname):
-    if session['username'] :
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('select nickname,score,date,text from comments where cname = %s',[cname])
-        comments = cursor.fetchall()
-        return render_template('show_comments.html',cname = cname,comments = comments,head = u'党员评价')
-    return render_template('login.html',error='Please LOG IN!')
 #####################################################
 
-
+#1
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
@@ -146,6 +61,7 @@ def login():
                 return "1"
             
     return "0"
+#2
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 
@@ -166,7 +82,7 @@ def register():
                 return "1"
             
     return "0"
-
+#3
 @app.route("/pwd_modify",methods=['GET','POST'])
 def pwd_modify():
     if request.method == 'POST':
@@ -180,7 +96,7 @@ def pwd_modify():
     else :
         return "0"
 
-
+#4
 @app.route("/updateNickName",methods=['GET','POST'])
 def updateNickName():
     if request.method == 'POST':
@@ -193,7 +109,7 @@ def updateNickName():
         return "1"
     else :
         return "0"
-
+#5
 @app.route("/updateGender",methods=['GET','POST'])
 def updateGender():
     if request.method == 'POST':
@@ -206,7 +122,7 @@ def updateGender():
         return "1"
     else :
         return "0"
-
+#6
 @app.route("/getNickName/<username>",methods=['GET','POST'])
 def getNickName(username):
 
@@ -221,7 +137,7 @@ def getNickName(username):
             test["gender"] = x[1] 
         return jsonify(test)
 
-
+#7
 @app.route('/act_publish',methods=['POST','GET'])
 def act_publish():
     act_name = request.args.get('act_name')
@@ -238,7 +154,7 @@ def act_publish():
         [act_name,publisher,details,location,act_time,pub_time,act_type])
     db.commit()
     return "1"
-
+#8
 @app.route('/logout',methods=['POST','GET'])
 def logout():
     session['username']=None
@@ -248,7 +164,7 @@ def logout():
     cur.execute('update user set OnLine = 0 where username = %s',[username])
     db.commit()
     return "1"
-
+#9
 @app.route('/get_act_list/<username>')
 def get_act_list(username):
 
@@ -295,7 +211,7 @@ def get_act_list(username):
 
 
     return jsonify(testData)
-
+#10
 @app.route('/get_act_list_halfFriend/<username>')
 def get_act_list_halfFriend(username):
 
@@ -334,9 +250,11 @@ def get_act_list_halfFriend(username):
     return jsonify(testData)
 
 
-
-@app.route("/get_act/<act_id>")
-def get_act(act_id):
+#11
+@app.route("/get_act")
+def get_act():
+    act_id = request.args.get('act_id')
+    username = request.args.get('username')
     db = get_db()
     cursor = db.cursor()
     cursor.execute("select * from activity where Id = %s",[act_id])
@@ -354,8 +272,13 @@ def get_act(act_id):
         item["type"]     = i[7]
         item["like"] = str(i[8])
         item["dislike"] = str(i[9])
-    return jsonify(item)
 
+    cursor.execute('select count(*) from collect where act_id=%s and collecter = %s',[act_id,username])
+    flag = cursor.fetchone()
+    item["collect"] = flag[0]
+
+    return jsonify(item)
+#12
 @app.route('/get_comment/<act_id>')
 def get_comment(act_id):
 
@@ -377,7 +300,7 @@ def get_comment(act_id):
         testData["array"].append(item)
 
     return jsonify(testData)
-
+#13
 @app.route('/set_comment',methods=['GET','POST'])
 def set_comment():
 
@@ -392,7 +315,7 @@ def set_comment():
     db.commit()
     
     return "1"
-
+#14
 @app.route("/add_friend",methods = ['POST','GET'])
 def add_friend():
     HostUsername = request.args.get("HostUsername")
@@ -412,6 +335,7 @@ def add_friend():
         db.commit()
 
         return "1"
+#15
 @app.route("/haveAtry/<username>")
 def haveAtry(username):
     db = get_db()
@@ -429,7 +353,7 @@ def haveAtry(username):
             if y not in data1:
                  ostr +=y[0] +u"    共同好友："+x[0] +"\n"
     return ostr
-
+#16
 @app.route("/get_friend/<HostUsername>")
 def get_friend(HostUsername):
 
@@ -447,7 +371,7 @@ def get_friend(HostUsername):
 
     return jsonify(testData)
 
-
+#17
 @app.route('/getChatList/<username>')
 def getChatList(username):
     db = get_db()
@@ -460,7 +384,7 @@ def getChatList(username):
 
     return jsonify(testData)
 
-
+#18
 @app.route('/getChatdata')
 def getChatdata():
     toUserid = request.args.get("toUserid")
@@ -485,7 +409,7 @@ def getChatdata():
 
     return jsonify(testData)
 
-
+#19
 @app.route('/sendMessage',methods=["POST","GET"])
 def sendMessage():
     if request.method == "GET":
@@ -501,7 +425,7 @@ def sendMessage():
         db.commit()
         print "yes"
         return "1"
-
+#20
 @app.route('/getPersonalData/<username>')
 def getPersonalData(username):
     s = {}
@@ -537,8 +461,7 @@ def getPersonalData(username):
 
     return jsonify(s)
 
-
-
+#21
 @app.route('/delete_act/<act_id>',methods=['POST','GET'])
 def delete_act(act_id):
 
@@ -551,6 +474,7 @@ def delete_act(act_id):
 
     else:
         return '0'
+#22
 @app.route('/LikeOrDislike/<mod>',methods=['POST','GET'])
 def LikeOrDislike(mod):
     if request.method =='POST':
@@ -569,6 +493,26 @@ def LikeOrDislike(mod):
 
     else:
         return "0"
+
+
+@app.route('/act_collect',methods = ['POST','GET'])
+def act_collect():
+    act_id = request.args.get('act_id')
+    username = request.args.get('username')
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('select count(*) from collect where act_id=%s and collecter = %s',[act_id,username])
+    flag = cursor.fetchone()
+    if flag[0] == 1:
+        cursor.execute('delete from collect where act_id=%s and collecter = %s',[act_id,username])
+        db.commit()
+        return "1"
+    if flag[0] == 0:
+        cursor.execute('insert into collect(act_id,collecter) values(%s,%s)',[act_id,username])
+        db.commit()
+        return "1"
+    return "0"
+
 
 if __name__ == '__main__':
     app.debug = True

@@ -78,7 +78,7 @@ personalCenter.open({
     		
     },
     	        {
-        	title:"正在进行的活动",
+        	title:"他参加的",
         	titleColor:'#FFFFFF',
         	count:'100',
             bgImg:'widget://image/userbg.png',

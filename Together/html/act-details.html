@@ -81,9 +81,12 @@
                         <td><label id="location" class="txt" >{{=it.dislike}}</label></td>
                     </tr>
                     <tr>
-                        <td><img src="../image/clection.png" style="height:30px;weight:30px" onclick=""></img></td>
-                        <td></td>
+                    {{? it.collect === 0 }}
+                        <td><img src="../image/clection.png" style="height:30px;weight:30px" onclick="collect({{=it.id}})"></img></td>
+                     {{??}}   
+                        <td><img src="../image/life-l.png" style="height:30px;weight:30px" onclick="collect({{=it.id}})"></img></td>
                         <!--src="../image/life-l.png"-->
+                     {{?}}
                     </tr>
                     </table>
                     </div>
@@ -117,6 +120,31 @@
     <script type="text/javascript" src="../script/doT.min.js"></script>
     <script type="text/javascript" src="../script/jquery-2.1.1.js"></script>
     <script>
+    
+function collect(act_id){
+    var uid = $api.getStorage('uid');
+    var collectURL = '/act_collect?'+'act_id='+act_id+"&username="+uid;
+    api.ajax({
+	    url : serverAddr + collectURL,
+        method : 'post',
+        cache : false,
+        timeout : 30,
+        dataType : 'text',
+        returnAll : false
+    },function(ret,err){
+    	//coding..
+    	if (ret ==='0'){
+    	alert('网络可能出错了！请稍后重试！')}
+    });
+    
+    
+    getactdata(act_id);
+}
+    
+    
+    
+    
+    
 function like(mod,act_id)
 {
     
@@ -133,6 +161,7 @@ returnAll : false
 });
     getactdata(act_id);
 }
+
 function setcomment(act_id) {
 var uid = $api.getStorage('uid');
 if (!uid) {
@@ -191,7 +220,9 @@ $("#comment-content").html(evalText(testData));
 });
 }
 function getactdata(id) {
-var getdataUrl = "/get_act/" + id;
+
+var username = $api.getStorage('uid');
+var getdataUrl = "/get_act" + "?act_id="+id+"&username="+username;
 api.ajax({
 url : serverAddr + getdataUrl,
 method : 'get',
@@ -240,6 +271,7 @@ alert('评论失败！请重试！');
 apiready = function() {
 var pageParam = api.pageParam;
 var act_id = pageParam.id;
+
 $api.setStorage('act_id', act_id)
 getactdata(act_id);
 getcomment(act_id);

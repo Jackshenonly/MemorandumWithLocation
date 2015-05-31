@@ -1,7 +1,7 @@
 
 function act_details(id){
 		api.openWin({
-		name: 'act-details',
+		name: 'act-details-mine',
 		url: './act-details-mine.html',
 		pageParam: {id: id }
 	});
@@ -66,7 +66,7 @@ personalCenter.open({
     		
     },
     	        {
-        	title:"正在进行的活动",
+        	title:"我参加的",
         	titleColor:'#FFFFFF',
         	count:'100',
             bgImg:'widget://image/userbg.png',

@@ -70,6 +70,29 @@
                     <div class="input-wrap last">
                     其他说明：                     <textarea id="details" rows="5" cols="20" class="details" readonly   id="details" >{{=it.details}}</textarea>
                     </div>
+                    <div  style="position:fixed;top:60px;right:20px;weight:40px;height:90px" >
+                    <table>
+                    <tr>
+                    <td><img src="../image/like.png" style="height:30px;weight:30px" onclick="like('T',{{=it.id}})"></img></td>
+                    <td><label id="location" class="txt" >{{=it.like}}</label></td>
+                    </tr>
+                    <tr>
+                        <td><img src="../image/dislike.png" style="height:30px;weight:30px" onclick="like('F',{{=it.id}})"></img></td>
+                        <td><label id="location" class="txt" >{{=it.dislike}}</label></td>
+                    </tr>
+                    <tr>
+                     {{? it.collect === 0 }}
+                        <td><img src="../image/clection.png" style="height:30px;weight:30px" onclick="collect({{=it.id}})"></img></td>
+                     {{??}}   
+                        <td><img src="../image/life-l.png" style="height:30px;weight:30px" onclick="collect({{=it.id}})"></img></td>
+                        <!--src="../image/life-l.png"-->
+                     {{?}}  
+                    </tr>
+                    </table>
+                    </div>
+                    
+                    
+                    
                     <div id="publish" style="position:fixed;bottom:40px;right:20px;weight:40px;height:40px" >
                     <table>
                     <tr>
@@ -101,6 +124,29 @@
     <script type="text/javascript" src="../script/doT.min.js"></script>
     <script type="text/javascript" src="../script/jquery-2.1.1.js"></script>
     <script>
+    
+   function collect(act_id){
+    var uid = $api.getStorage('uid');
+    var collectURL = '/act_collect?'+'act_id='+act_id+"&username="+uid;
+    api.ajax({
+        url : serverAddr + collectURL,
+        method : 'post',
+        cache : false,
+        timeout : 30,
+        dataType : 'text',
+        returnAll : false
+    },function(ret,err){
+        //coding..
+        if (ret ==='0'){
+        alert('网络可能出错了！请稍后重试！')}
+    });
+    
+    
+    getactdata(act_id);
+}
+    
+    
+    
 		function deleteActivity(act_id) {
 			var name = $api.byId("act_name").innerHTML;
 			api.confirm({
@@ -194,7 +240,8 @@
 		}
 
 		function getactdata(id) {
-			var getdataUrl = "/get_act/" + id;
+		var username = $api.getStorage('uid');
+        var getdataUrl = "/get_act" + "?act_id="+id+"&username="+username;
 			api.ajax({
 				url : serverAddr + getdataUrl,
 				method : 'get',
