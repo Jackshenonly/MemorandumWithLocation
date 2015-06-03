@@ -65,6 +65,14 @@ function openLifeDetail(title,type){
     });
 }
 
+function changeName(el){
+	if(el.name=='1')
+	el.name = '0';
+	else
+	{el.name = '1';}
+
+}
+
 function getData(type) {
 /*
 //  var getTabBarActivityUrl = '/tabBar?filter=';
@@ -92,8 +100,67 @@ function getData(type) {
 		var typeData = {"array":[]};
 	        type = arguments[0] || "全部";
 	
+	api.startLocation({
+    accuracy: '10m',
+    filter:1,
+    autoStop: true
+},function(ret, err){
+    if(ret.status){
+    
+    
+        var lat = ret.latitude;
+        var lon = ret.longitude;
+        var time = ret.timestamp;
+//      var str = '经度：'+ lon +'\n';
+//      str += '纬度：'+ lat +'\n';
+//      str += '更新时间：'+ time;
+//      api.alert({msg:str});
+	var loc = $api.byId('loc').name;
+	var hot = $api.byId('hot').name;
+	//alert("loc"+loc+"^^^"+"hot"+hot);
+	var username = "all"+loc+hot;
+	var getdataUrl = "/get_act_list?"+"username="+username +"&lat="+lat+"&lon="+lon;
+	api.ajax({
+	    url:serverAddr + getdataUrl,
+	    method:'get',
+	    cache: false,
+        timeout: 30,
+        dataType: 'json',
+        returnAll: false
+    },function(ret,err){
+    	testData = ret;
+    	if (type==="全部")
+	{
+		var evalText = doT.template($("#act-template").text());
+		$("#act-content").html(evalText(testData));
+	}
+	else
+	{
+		for( var i = 0;i < testData.array.length; i++)
+		{
+			if(testData.array[i].type===type)
+			{	typeData.array.push(testData.array[i]);}
+		}
+		var evalText = doT.template($("#act-template").text());
+		$("#act-content").html(evalText(typeData));
+	}
+    	//coding...
+    });        
+        
+        
+        
+        
+    } else{
+        api.alert({msg:err.msg});
+    }
+});
 	
-	var getdataUrl = "/get_act_list/all"
+/*	
+	var loc = $api.byId('loc').name;
+	var hot = $api.byId('hot').name;
+	//alert("loc"+loc+"^^^"+"hot"+hot);
+	
+	var getdataUrl = "/get_act_list/all"+loc+hot;
 	api.ajax({
 	    url:serverAddr + getdataUrl,
 	    method:'get',
@@ -120,18 +187,19 @@ function getData(type) {
 	}
     	//coding...
     });
-	
-	
-	var testData = {"array":
-					[{"username":"jackshen","act_name":"斯诺克","location":"绅士俱乐部","details":"一起来斯诺克吧！我等你哟","time":"2014-04-04","type":"娱乐"},
-					{"username":"jackshen","act_name":"篮球","location":"第一运动场","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"运动"},
-					{"username":"北哥","act_name":"约么？","location":"某个Hotel！你选","details":"你懂的！哈哈~~","time":"2014-04-04","type":"学习"},
-					{"username":"北哥","act_name":"吃货，走起！","location":"必胜客","details":"吃个饱饱哒，便宜实惠！","time":"2014-04-04","type":"拼桌"},
-					{"username":"jackshen","act_name":"看个电影吧！","location":"男主白血病影院","details":"失恋求安慰！","time":"2014-04-04","type":"电影"},
-					{"username":"北哥","act_name":"K歌","location":"宝龙","details":"谁能与我一 觉 高下！","time":"2014-04-04","type":"娱乐"},
-					{"username":"jackshen","act_name":"露天桌游！","location":"钱塘江泮","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"娱乐"},
-					]
-					};
+*/
+//	
+//	
+//	var testData = {"array":
+//					[{"username":"jackshen","act_name":"斯诺克","location":"绅士俱乐部","details":"一起来斯诺克吧！我等你哟","time":"2014-04-04","type":"娱乐"},
+//					{"username":"jackshen","act_name":"篮球","location":"第一运动场","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"运动"},
+//					{"username":"北哥","act_name":"约么？","location":"某个Hotel！你选","details":"你懂的！哈哈~~","time":"2014-04-04","type":"学习"},
+//					{"username":"北哥","act_name":"吃货，走起！","location":"必胜客","details":"吃个饱饱哒，便宜实惠！","time":"2014-04-04","type":"拼桌"},
+//					{"username":"jackshen","act_name":"看个电影吧！","location":"男主白血病影院","details":"失恋求安慰！","time":"2014-04-04","type":"电影"},
+//					{"username":"北哥","act_name":"K歌","location":"宝龙","details":"谁能与我一 觉 高下！","time":"2014-04-04","type":"娱乐"},
+//					{"username":"jackshen","act_name":"露天桌游！","location":"钱塘江泮","details":"性别不限！但求实力对手！","time":"2014-04-04","type":"娱乐"},
+//					]
+//					};
 
 	
 

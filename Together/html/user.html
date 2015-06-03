@@ -29,7 +29,9 @@
                     <h1></h1>
                     <script id="act-template" type="text/x-dot-template">
                         {{~    it.array:value:index    }}
-                        <div class="act-Item" onclick="act_details({{=value.id}})">
+                        
+                        <div class="act-Item" onclick="check({{=value.id}},'{{=value.publisher}}')">
+                        
                         <h2>{{=value.act_name}}</h2>
                         <h3>{{=value.publisher}}</h3>
                         <h4>{{=value.location}}</h4>

@@ -53,7 +53,7 @@ function ensure() {
     
     }
 	else
-	{alert("用户名和密码不能为空！");
+	{alert("用户名或密码不能为空！");
 	api.hideProgress();}
 	
 }

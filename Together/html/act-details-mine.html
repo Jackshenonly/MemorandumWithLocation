@@ -102,9 +102,14 @@
                     </tr>
                     </table>
                     </div>
+                     <p>还未被拒绝的参与者：</p>
+                   {{~    it.array:value:index    }}
+                        <a class="txt" onclick="friendDetails('{{=value}}')">{{=value}}</a>
+                    {{~}}
                 </script>
                 <div id="act-content" style="background-color:gray"></div>
                 <script id="comment-template" type="text/x-dot-template">
+                    <p>评论：</p>
                     {{~    it.array:value:index    }}
                     <div class="act-Item">
                     <h3>{{=value.username}}</h3>
@@ -125,6 +130,21 @@
     <script type="text/javascript" src="../script/jquery-2.1.1.js"></script>
     <script>
     
+    
+    
+   function friendDetails(username){
+
+    api.openWin({
+        name: 'user-other',
+        url: './user-other.html',
+        opaque: true,
+        pageParam: {
+            username: username,
+            previous:'act-details-mine'
+        },
+        //vScrollBarEnabled: false
+    });
+} 
    function collect(act_id){
     var uid = $api.getStorage('uid');
     var collectURL = '/act_collect?'+'act_id='+act_id+"&username="+uid;
@@ -145,7 +165,23 @@
     getactdata(act_id);
 }
     
+    function like(mod,act_id)
+{
     
+    api.ajax({
+url : serverAddr + '/LikeOrDislike/' + mod + act_id,
+method : 'post',
+cache : false,
+timeout : 30,
+dataType : 'text',
+returnAll : false
+}, function(ret, err) {
+
+
+});
+    getactdata(act_id);
+}
+
     
 		function deleteActivity(act_id) {
 			var name = $api.byId("act_name").innerHTML;
@@ -203,21 +239,62 @@
 			});
 		}
 
-		function join(id) {
-			var name = $api.byId("act_name").innerHTML;
-			api.confirm({
-				title : '亲',
-				msg : '你确定要参加《' + name + '》么！',
-				buttons : ['参加', '我再想想']
-			}, function(ret, err) {
-				//coding...
-				if (ret.buttonIndex == 1) {
-					api.alert({
-						msg : '已提交参加请求！'
-					});
-				}
-			});
-		}
+		function join() {
+var name = $api.byId("act_name").innerHTML;
+api.confirm({
+title : '亲',
+msg : '你确定要参加《' + name + '》么！',
+buttons : ['参加', '我再想想']
+}, function(ret, err) {
+//coding...
+if (ret.buttonIndex == 1) {
+    var act_id = $api.getStorage('act_id');
+    var username = $api.getStorage('uid');
+    var participateURL = "/participate?"+"act_id="+act_id+"&username="+username;
+    
+    api.ajax({
+        url : serverAddr + participateURL,
+        method : 'get',
+        cache : false,
+        timeout : 30,
+        dataType : 'text',
+        returnAll : false
+    },function(ret,err){
+        //coding...
+        if(ret === '1')
+        {
+        api.alert({
+            msg : '提交参加请求成功！发起者将联系你或者将你拒绝！被拒绝后不会出现在个人参加的活动里！'
+                    });
+          getactdata($api.getStorage('act_id'));
+        }
+        else if(ret === '2')
+        {
+        api.alert({
+            msg : '你已经提过交参加请求！且发起者还未拒绝你，请等待发起者联系你！'
+                    });
+        }
+        else if(ret === '3')
+        {
+        api.alert({
+            msg : '很遗憾！该活动发起者已经拒绝过你！'
+                    });
+        }
+        else{
+                api.alert({
+            msg : '出错了，请稍后重试！'
+                    });
+        }
+        
+        
+    });
+
+
+
+
+}
+});
+}
 
 		function getcomment(id) {
 			var getCommentUrl = "/get_comment/" + id;

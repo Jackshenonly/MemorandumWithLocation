@@ -113,35 +113,65 @@
 		}
 
 		function commit() {
-			var act_name = $api.byId('act_name').value;
-			var publisher = $api.getStorage('uid');
-			//var type = $api.byId('type').value;
-			//var act_time = $api.byId('act_time').value;
-			var location = $api.byId('location').value;
-			var details = $api.byId('details').value;
-			var mystr = "act_name=" + act_name + "&publisher=" + publisher + "&type=" + type + "&act_time=" + act_time + "&location=" + location + "&details=" + details;
-			//alert(mystr);
-			var publishUrl = '/act_publish?'
-			api.ajax({
-				url : serverAddr + publishUrl + mystr,
-				method : 'post',
-				cache : false,
-				timeout : 30,
-				dataType : 'text',
-				returnAll : false,
-			}, function(ret, err) {
-				if (ret === '1') {
-					api.alert({
-						title : '发布成功',
-						msg : '你可以在个人界面查看和修改！'
-					}, function(ret, err) {
-						api.closeWin();
-						//coding...
-					});
-				} else {
-					alert('发布失败！');
-				}
-			});
+		
+		
+		  api.startLocation({
+    accuracy: '10m',
+    filter:1,
+    autoStop: true
+},function(ret, err){
+    if(ret.status){
+    
+    
+        var lat = ret.latitude;
+        var lon = ret.longitude;
+        var time = ret.timestamp;
+        
+        
+            var act_name = $api.byId('act_name').value;
+            var publisher = $api.getStorage('uid');
+            //var type = $api.byId('type').value;
+            //var act_time = $api.byId('act_time').value;
+            var location = $api.byId('location').value;
+            var details = $api.byId('details').value;
+            var mystr = "act_name=" + act_name + "&publisher=" + publisher + "&type=" + type + "&act_time=" + act_time + "&location=" + location + "&details=" + details;
+            var location = "&lat="+lat+"&lon="+lon;
+            //alert(mystr);
+            var publishUrl = '/act_publish?'
+            api.ajax({
+                url : serverAddr + publishUrl + mystr+location,
+                method : 'post',
+                cache : false,
+                timeout : 30,
+                dataType : 'text',
+                returnAll : false,
+            }, function(ret, err) {
+                if (ret === '1') {
+                    api.alert({
+                        title : '发布成功',
+                        msg : '你可以在个人界面查看。当其他人响应时，你可以看到并选择是否与之联系。'
+                    }, function(ret, err) {
+                        api.closeWin();
+                        //coding...
+                    });
+                } else {
+                    alert('发布失败！');
+                }
+            });		
+		
+		
+		
+		
+		
+		
+		    } 
+		else{
+        api.alert({msg:err.msg});
+    }
+});
+		
+		
+
 		}
     </script>
 </html>

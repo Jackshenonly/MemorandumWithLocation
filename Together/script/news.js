@@ -236,16 +236,16 @@ itemSize:{
         {
               title:"好友动态",
                titleSelected:"好友动态",
-              bg:"#ffff00",
+              bg:"#898BA4",
             alpha: 0.8,
-              bgSelected:"#ff00000"
+              bgSelected:"#6870C4"
         },
         {
               title:"半个陌生人",
                titleSelected:"半个陌生人",
-              bg:"#ffff00",
+              bg:"#898BA4",
             alpha: 0.8,
-              bgSelected:"#ff00000"
+              bgSelected:"#6870C4"
         }
     ],
     font:{

@@ -50,12 +50,14 @@
 				</ul>
 			</div>
 
-			<div id = "filter"   onclick="act_selecter()" style="height:20px;margin-top:10px">
+			<div id = "filter"   style="height:20px;margin-top:10px">
 			<table>
 			         <tr>
-			          <td><img src="../image/menu.png"/></td>
+			          <td  onclick="act_selecter()"><img src="../image/menu.png"/></td>
 			      
 			         <td><label id = "result" >全部</label></td>
+			         <td><label><input id="loc" name="0" type="checkbox" onchange="changeName(this)" />距离 </label></td>
+			         <td><label><input id="hot" name="0" type="checkbox" onchange="changeName(this)" />热度</label></td>
 			         </tr>
             </table>
 			</div>

@@ -1,3 +1,60 @@
+function check()
+{	
+	var previous = api.pageParam.previous;
+	
+	if(previous === 'act-details-mine')
+	{
+		var html = "<a class=\"btn\" onclick=\"reject()\">也许不合适！</a>"
+		$api.byId('reject').innerHTML = html;
+	}
+}
+function reject()
+{
+
+	var username = api.pageParam.username;
+	
+				api.confirm({
+				title : '亲',
+				msg : '你确定要决绝' + username + '吗！',
+				buttons : ['残忍拒绝', '我再想想']
+			}, function(ret, err) {
+				//coding...
+				if (ret.buttonIndex == 1) {
+					var username = api.pageParam.username;
+					var act_id = $api.getStorage('act_id');
+				var rejectURL = "/reject?"+"username="+username+"&act_id="+act_id;	
+		            	api.ajax({
+	    		url : serverAddr +rejectURL ,
+				method : 'get',
+				cache : false,
+				timeout : 30,
+				dataType : 'text',
+				returnAll : false,
+    },function(ret,err){
+    	//coding...
+    	if(ret === "1")
+    	{
+    		api.alert({msg:"拒绝成功！"
+            },function(ret,err){
+            	//coding...
+            });
+            api.closeWin();
+    	}
+    	else{
+    	    		api.alert({msg:"操作失败！请检查网络！"
+            },function(ret,err){
+            	//coding...
+            });
+    	}
+    });
+
+				}
+			});
+
+	
+	
+}
+
 function openchatDetail(){
 	fromuser = api.pageParam.username;
     api.openWin({
@@ -73,14 +130,14 @@ personalCenter.open({
 	        {
         	title:"他的收藏",
         	titleColor:'#FFFFFF',
-        	count:'100',
+        	count:ret1.myCollect.count,
             bgImg:'widget://image/userbg.png',
     		
     },
     	        {
         	title:"他参加的",
         	titleColor:'#FFFFFF',
-        	count:'100',
+        	count:ret1.myParticipate.count,
             bgImg:'widget://image/userbg.png',
     		
     },
@@ -103,15 +160,21 @@ function display(id,ret1){
 		
 	}
 		if(id ==1)
-	{	alert('他的收藏');	}
+	{	var evalText = doT.template($("#act-template").text());
+		$("#act-content").html(evalText(ret1.myCollect));
+	}
 		if(id ==2)
-	{	alert('正在进行');	}
+	{			var evalText = doT.template($("#act-template").text());
+		$("#act-content").html(evalText(ret1.myParticipate));
+	}
 	
 		
 }
 apiready = function () {
 	
+	check();
 	getdata();
+	
 	api.setRefreshHeaderInfo({
 	visible: true,
         // loadingImgae: 'wgt://image/refresh-white.png',
@@ -122,7 +185,9 @@ apiready = function () {
         showTime: true
     },function(ret,err){
     	//coding...
+    	check();
     	getdata();
+    	
     	api.refreshHeaderLoadDone();
     });
 	

@@ -1,10 +1,29 @@
 
-function act_details(id){
+function act_details_mine(id){
 		api.openWin({
 		name: 'act-details-mine',
 		url: './act-details-mine.html',
 		pageParam: {id: id }
 	});
+}
+function act_details(id){
+		api.openWin({
+		name: 'act-details',
+		url: './act-details.html',
+		pageParam: {id: id }
+	});
+}
+function check(act_id,publisher)
+{	
+      var uid = $api.getStorage('uid');
+   if (uid==publisher)
+ {
+    act_details_mine(act_id);
+ }
+  else
+  {
+    act_details(act_id);    
+    }
 }
 
 function getdata(){
@@ -61,14 +80,14 @@ personalCenter.open({
 	        {
         	title:"我的收藏",
         	titleColor:'#FFFFFF',
-        	count:'100',
+        	count:ret1.myCollect.count,
             bgImg:'widget://image/userbg.png',
     		
     },
     	        {
         	title:"我参加的",
         	titleColor:'#FFFFFF',
-        	count:'100',
+        	count:ret1.myParticipate.count,
             bgImg:'widget://image/userbg.png',
     		
     },
@@ -91,9 +110,16 @@ function display(id,ret1){
 		
 	}
 		if(id ==1)
-	{	alert('我的收藏');	}
+	{	
+	
+		var evalText = doT.template($("#act-template").text());
+		$("#act-content").html(evalText(ret1.myCollect));
+	}
 		if(id ==2)
-	{	alert('正在进行');	}
+	{
+		var evalText = doT.template($("#act-template").text());
+		$("#act-content").html(evalText(ret1.myParticipate));
+	}
 	
 		
 }

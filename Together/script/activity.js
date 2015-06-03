@@ -5,7 +5,8 @@ function friendDetails(username){
         url: './user-other.html',
        	opaque: true,
         pageParam: {
-            username: username
+            username: username,
+            previous:'activity'
         },
         //vScrollBarEnabled: false
     });

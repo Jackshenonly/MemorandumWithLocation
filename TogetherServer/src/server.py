@@ -68,6 +68,8 @@ def register():
     if request.method == 'POST':
             username = request.args.get('username')
             password = request.args.get('password')
+            username = username[:20]
+            password = password[:20]
             db = get_db()
             cur = db.cursor()
             cur.execute('select password from user where username =%s',[username])
@@ -88,6 +90,7 @@ def pwd_modify():
     if request.method == 'POST':
         username = request.args.get('username')
         newpwd   = request.args.get('newpwd')
+        newpwd  = newpwd[:20]
         db = get_db()
         cur = db.cursor()
         cur.execute('update user set password =%s where username= %s',[newpwd,username])
@@ -102,6 +105,7 @@ def updateNickName():
     if request.method == 'POST':
         username = request.args.get('username')
         NickName   = request.args.get('NickName')
+        NickName = NickName[:20]
         db = get_db()
         cur = db.cursor()
         cur.execute('update user set NickName =%s where username= %s',[NickName,username])
@@ -145,13 +149,15 @@ def act_publish():
     details = request.args.get('details')
     location = request.args.get('location')
     act_time = request.args.get('act_time')
+    lat = request.args.get('lat').replace(".","")[:8]
+    lon = request.args.get('lon').replace(".","")[:9]
     pub_time = time.strftime("%Y-%m-%d %H:%M:%S")
     act_type = request.args.get('type')
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('insert into activity(act_name,publisher,details,location,act_time,pub_time,type) \
-        values (%s,%s,%s,%s,%s,%s,%s)',
-        [act_name,publisher,details,location,act_time,pub_time,act_type])
+    cursor.execute('insert into activity(act_name,publisher,details,location,act_time,pub_time,type,lat,lon) \
+        values (%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+        [act_name,publisher,details,location,act_time,pub_time,act_type,lat,lon])
     db.commit()
     return "1"
 #8
@@ -165,13 +171,17 @@ def logout():
     db.commit()
     return "1"
 #9
-@app.route('/get_act_list/<username>')
-def get_act_list(username):
+@app.route('/get_act_list')
+def get_act_list():
+
+    username = request.args.get('username')
+
 
     testData = {"array":[]}
+    mine = ["all00","all01","all10","all11"]
     db = get_db()
     cursor = db.cursor()
-    if username != "all":
+    if username not in mine:
         cursor.execute('select FriendUsername from friends where HostUsername=%s',[username])
         users = cursor.fetchall()
         
@@ -191,12 +201,28 @@ def get_act_list(username):
                 testData["array"].append(item)
 
         return jsonify(testData)
-    
-    
-    cursor.execute('select * from activity order by pub_time desc')
+
+    loc = username[3:4]
+    hot = username[4:5]
+
+    lat = int(request.args.get('lat').replace(".","")[:8])
+    lon = int(request.args.get('lon').replace(".","")[:9])
+    sql1 = "((lat-"+str(lat)+")*" + "(lat-"+str(lat)+")+"
+    sql2 = "(lat-"+str(lat)+")*" + "(lat-"+str(lat)+")) as b"
+    print sql1,sql2 
+
+    if loc=='0':
+        if hot=='0':
+            cursor.execute('select * from activity order by pub_time desc')
+        else:
+            cursor.execute('select * from activity order by mlike desc,pub_time desc')
+    else:
+        if hot=='0':
+            cursor.execute('select *,'+sql1+sql2+' from activity order by b,pub_time desc')
+        else:
+            cursor.execute('select *,'+sql1+sql2+' from activity order by b,mlike desc,pub_time desc')
     data = cursor.fetchall()
-    
-    
+        
     for i in data:
         item = {}
         item["id"]       = i[0]
@@ -211,6 +237,8 @@ def get_act_list(username):
 
 
     return jsonify(testData)
+
+
 #10
 @app.route('/get_act_list_halfFriend/<username>')
 def get_act_list_halfFriend(username):
@@ -276,6 +304,12 @@ def get_act():
     cursor.execute('select count(*) from collect where act_id=%s and collecter = %s',[act_id,username])
     flag = cursor.fetchone()
     item["collect"] = flag[0]
+
+    item["array"] = []
+    cursor.execute('select participater from participate where act_id=%s and reject = \'0\'',[act_id])
+    data = cursor.fetchall()
+    for x in data:
+        item["array"].append(x[0])
 
     return jsonify(item)
 #12
@@ -437,10 +471,11 @@ def getPersonalData(username):
     s['NickName'] = data[0][0]
     s['Gender']=data[0][1]
     s['Credit'] = data[0][2]
+    
+    s['myActivity'] = {}
     cursor.execute('select count(*) from activity where publisher=%s',[username])
-    s['myActivity']={}
-    s['myActivity']['count']= str(cursor.fetchone()[0])
-    s['myActivity']['array']=[]
+    s['myActivity']['count'] = str(cursor.fetchone()[0])
+    s['myActivity']['array'] = []
 
     cursor.execute('select * from activity  where publisher=%s order by pub_time desc',[username])
     data = cursor.fetchall()
@@ -458,6 +493,44 @@ def getPersonalData(username):
         item["type"]     = i[7]
         s['myActivity']['array'].append(item)
 
+    s['myCollect'] = {}
+    cursor.execute('select count(*) from collect where collecter=%s',[username])
+    s['myCollect']['count'] = str(cursor.fetchone()[0])
+    s['myCollect']['array'] = []
+    cursor.execute('select b.* from collect  as a INNER JOIN activity as b on a.collecter = %s and a.act_id = b.Id',[username])
+    data = cursor.fetchall()
+
+    for i in data:
+        item = {}
+        item["id"]       = i[0]
+        item["act_name"] = i[1]
+        item["publisher"] = i[2]
+        item["details"]  = i[3]
+        item["location"] = i[4]
+        item["act_time"] = str(i[5])
+        item["pub_time"] = str(i[6])
+        item["type"]     = i[7]
+        s['myCollect']['array'].append(item)
+
+
+    s['myParticipate'] = {}
+    cursor.execute("select count(*) from participate where participater=%s and reject = '0' ",[username])
+    s['myParticipate']['count'] = str(cursor.fetchone()[0])
+    s['myParticipate']['array'] = []
+    cursor.execute("select b.* from participate  as a INNER JOIN activity as b on a.participater = %s and a.act_id = b.Id and a.reject = '0' ",[username])
+    data = cursor.fetchall()
+
+    for i in data:
+        item = {}
+        item["id"]       = i[0]
+        item["act_name"] = i[1]
+        item["publisher"] = i[2]
+        item["details"]  = i[3]
+        item["location"] = i[4]
+        item["act_time"] = str(i[5])
+        item["pub_time"] = str(i[6])
+        item["type"]     = i[7]
+        s['myParticipate']['array'].append(item)
 
     return jsonify(s)
 
@@ -512,6 +585,36 @@ def act_collect():
         db.commit()
         return "1"
     return "0"
+
+@app.route('/participate',methods=['POST','GET'])
+def participate():
+    act_id = request.args.get('act_id')
+    username = request.args.get('username')
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("select count(*),reject from participate where act_id =%s and participater=%s",[act_id,username])
+    data = cursor.fetchone()
+    if data[0]== 0:
+        cursor.execute('insert into participate(act_id,participater) values(%s,%s)',[act_id,username])
+        db.commit()
+        return '1'       
+    elif data[0] == 1 and data[1] == '0' :
+        return '2'
+    elif data[0] == 1 and data[1] == '1' :
+        return '3'
+
+    return 'ERROR'
+
+
+@app.route('/reject',methods=['POST','GET'])
+def reject():
+    username = request.args.get('username')
+    act_id = request.args.get('act_id')
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("update participate set reject = '1' where act_id = %s and participater = %s",[act_id,username])
+    db.commit()
+    return "1"
 
 
 if __name__ == '__main__':
