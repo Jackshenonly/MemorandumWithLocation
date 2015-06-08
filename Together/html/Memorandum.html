@@ -19,40 +19,26 @@
                 <h1>我的地理备忘录</h1>
             </div>
             <div id="main">
-                <ol>
-                    <li style="height:50px;margin:10px;box-shadow: 0px 4px 4px #dddcdc;">
-                        <table width=100%>
-                            <tr>
-                                <td style="font-family:微软雅黑;font-size:20px;color:green"> 中午记得吃饭 </td><td style="text-align:center;vertical-align:middle;color:#00FF00;font-family:微软雅黑;">进行中</td>
-                            </tr>
-                            <tr>
-                                <td style="font-family:微软雅黑;font-size:15px;color:blue">12:10</td><td style="text-align:center;vertical-align:middle;color:#201A74;font-family:微软雅黑;">宝龙某餐馆</td>
-                            </tr>
-                        </table>
+
+                <script id="memo-template" type="text/x-dot-template">
+                    {{~    it.array:value:index    }}
+                    <li style="height:50px;margin:10px;box-shadow: 0px 4px 4px #dddcdc;" onclick="memo_details({{=value.id}})">
+                    <table width=100%>
+                    <tr>
+                        <td style="font-family:微软雅黑;font-size:20px;color:green">{{=value.details}} </td>
+                        <td style="text-align:right;vertical-align:middle;color:#00FF00;font-family:微软雅黑;">{{=value.flag}}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:微软雅黑;font-size:15px;color:blue">{{=value.m_time}}</td>
+                        <td style="text-align:right;vertical-align:middle;color:#201A74;font-family:微软雅黑;">{{=value.location}}</td>
+                    </tr>
+                    </table>
                     </li>
-                    <li style="height:50px;margin:10px;box-shadow: 0px 4px 4px #dddcdc;">
-                        <table width=100%>
-                            <tr>
-                                <td style="font-family:微软雅黑;font-size:20px;color:green"> 中午记得吃饭 </td><td style="text-align:center;vertical-align:middle;color:#00FF00;font-family:微软雅黑;">进行中</td>
-                            </tr>
-                            <tr>
-                                <td style="font-family:微软雅黑;font-size:15px;color:blue">12:10</td><td style="text-align:center;vertical-align:middle;color:#201A74;font-family:微软雅黑;">宝龙某餐馆</td>
-                            </tr>
-                        </table>
-                    </li>
+                    {{~}}
+                </script>
+
+                <ol id="memo-content">
                 </ol>
-                <!--<div class="input-wrap">
-                <input type="password" placeholder="当前密码" class="txt" id="currentPwd" value="" />
-                <i class="del" tapmode="" onclick="delWord(this)"></i>
-                </div>
-                <div class="input-wrap">
-                <input type="password" placeholder="新密码" class="txt" id="newPwd" value="" />
-                <i class="del" tapmode="" onclick="delWord(this)"></i>
-                </div>
-                <div class="input-wrap last">
-                <input type="password" placeholder="确认新密码" class="txt" id="newPwd2" value="" />
-                <i class="del" tapmode="" onclick="delWord(this)"></i>
-                </div>-->
                 <a class="btn" tapmode="active" onclick="newMemorandum()">新增备忘录</a>
             </div>
         </div>
@@ -61,30 +47,57 @@
     <script type="text/javascript" src="../script/common.js"></script>
     <script type="text/javascript" src="../script/jquery-2.1.1.js"></script>
     <script type="text/javascript" src="../script/doT.min.js"></script>
-    
     <script>
-    function newMemorandum(){
-        api.openWin({
-	        name: 'newMemorandum',
-	        url: './newMemorandum.html'
-        });
-    }
-    apiready = function(){
-        //pull to refresh
-    api.setRefreshHeaderInfo({
-        visible: true,
-        // loadingImgae: 'wgt://image/refresh-white.png',
-        bgColor: '#f2f2f2',
-        textColor: '#4d4d4d',
-        textDown: '下拉刷新...',
-        textUp: '松开刷新...',
-        showTime: true
-    }, function (ret, err) {
-       alert("刷新！");
-
-        api.refreshHeaderLoadDone();
+        function memo_details(id){
+            api.openWin({
+        name : 'memo-details',
+        url : './Memorandum-details.html',
+        pageParam : {
+            id : id
+        }
     });
-    }
-    
+        }
+		function newMemorandum() {
+			api.openWin({
+				name : 'newMemorandum',
+				url : './newMemorandum.html'
+			});
+		}
+
+		function getMemorandum() {
+			var username = $api.getStorage("uid");
+			var get_memorandumURL = "/get_memorandum?"
+			api.ajax({
+				url : serverAddr + get_memorandumURL + "username=" + username,
+				method : 'get',
+				cache : false,
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false,
+			}, function(ret, err) {
+				//coding...
+				var evalText = doT.template($("#memo-template").text());
+                $("#memo-content").html(evalText(ret));
+//				api.alert({msg : ret});
+
+			});
+		}
+
+		apiready = function() {
+			getMemorandum();
+			//pull to refresh
+			api.setRefreshHeaderInfo({
+				visible : true,
+				// loadingImgae: 'wgt://image/refresh-white.png',
+				bgColor : '#f2f2f2',
+				textColor : '#4d4d4d',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				getMemorandum();
+				api.refreshHeaderLoadDone();
+			});
+		}
     </script>
 </html>

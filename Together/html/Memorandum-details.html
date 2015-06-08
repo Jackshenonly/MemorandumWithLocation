@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0, width=device-width"/>
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="format-detection" content="address=no" />
+        <title>api</title>
+        <link rel="stylesheet" type="text/css" href="../css/api.css" />
+        <link rel="stylesheet" type="text/css" href="../css/common.css" />
+        <link rel="stylesheet" type="text/css" href="../css/act-publish.css" />
+    </head>
+    <body>
+        <div id="wrap">
+            <div id="header">
+                <a class="back-icon" tapmode="" onclick="closeMap();api.closeWin()"></a>
+                <h1>备忘录详情</h1>
+            </div>
+            <div style="height:206px"></div>
+            <div id="main">
+                <div class="input-wrap">
+                    <table>
+                        <tr>
+                            <td>日期：</td>
+                            <td><label id="act_date" class="txt">加载中...</label></td>
+                            <td>时间：</td>
+                            <td><label id="act_time" class="txt">加载中...</label></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="input-wrap">
+                    <table>
+                        <tr>
+                            <td>地点：</td>
+                            <td><label id="location"  class="txt" >加载中...</label></td>
+                            <td>距离：</td>
+                            <td><label id="distance"  class="txt" >计算中...</label></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="input-wrap last">
+                    备忘内容：                     <textarea placeholder="备忘内容" rows="5" readonly class="details" id="details" value="" ></textarea>
+                    <i class="del" tapmode="" onclick="closeTimeSelecter(this)"></i>
+                </div>
+                <table cellspacing="2" width="100%">
+                    <tr>
+                        <td><a class="btn" tapmode="active" onclick="commit()">完成</a></td>
+                        <td><a class="btn" tapmode="active" onclick="getdata()">刷新</a></td>
+                    </tr>
+                </table>
+                <div id="lon-lat" >
+                    <label id="lon">'</label>
+                    <label id="lat">'</label>
+                </div>
+                <div id="lon-lat-destination" >
+                    <label id="lon2"></label>
+                    <label id="lat2"></label>
+                </div>
+            </div>
+            <!--<textarea rows="5" cols="20" ></textarea>-->
+        </div>
+    </body>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/common.js"></script>
+    <script type="text/javascript" src="../script/modifyPwd.js"></script>
+    <script>
+		function openMap() {
+			var map = api.require('baiduMap');
+			map.open({
+				x : 0,
+				y : 45,
+				width : api.winWidth,
+				height : 200,
+			}, function(ret, err) {
+				if (ret.status) {
+					var lat2 = parseFloat($api.byId('lat2').innerHTML);
+					var lon2 = parseFloat($api.byId('lon2').innerHTML);
+					map.setCenter({
+						lon : lon2,
+						lat : lat2
+					});
+					map.setZoomLevel({
+						level : 18
+					});
+					map.addAnnotations({
+						annoArray : [{
+							id : 1,
+							lon : lon2,
+							lat : lat2,
+							title : '办事地点',
+							subTitle : ''
+						}]
+					}, function(ret, err) {
+					});
+				}
+			});
+		}
+
+		function closeMap() {
+			var map = api.require('baiduMap');
+			map.close();
+		}
+
+		function commit() {
+			var memo_id = api.pageParam.id;
+			//          var m_time = $api.byId('act_date').innerHTML +" "+ $api.byId("act_time").innerHTML;
+			//          var location = $api.byId("location").value;
+			//          var lon = $api.byId("lon").innerHTML;
+			//          var lat = $api.byId("lat").innerHTML;
+			//          var details =$api.byId("details").value;
+			//
+			//          var mystr = "m_time=" + m_time + "&username=" + username + "&location=" + location
+			//              + "&lon=" + lon + "&lat=" + lat + "&details=" + details;
+			//alert(mystr);
+			var finish_memorandum = '/finish_memorandum?id='
+			api.ajax({
+				url : serverAddr + finish_memorandum + memo_id,
+				method : 'post',
+				cache : false,
+				timeout : 30,
+				dataType : 'text',
+				returnAll : false,
+			}, function(ret, err) {
+				if (ret === '1') {
+					api.alert({
+						msg : '事件已完成！'
+					}, function(ret, err) {
+						api.closeWin();
+						//coding...
+					});
+				} else {
+					alert('操作失败！请检查网络！');
+				}
+			});
+		}
+
+		function mstartLocation() {
+			api.startLocation({
+				accuracy : '100m',
+				filter : 1,
+				autoStop : true
+			}, function(ret, err) {
+				if (ret.status) {
+					var lat = ret.latitude;
+					var lon = ret.longitude;
+					var time = ret.timestamp;
+					$api.byId('lat').innerHTML = lat;
+					$api.byId('lat').innerHTML = $api.byId('lat').innerHTML.substr(0,9);
+					$api.byId('lon').innerHTML = lon;
+					$api.byId('lon').innerHTML = $api.byId('lon').innerHTML.substr(0,10);
+				} else {
+					api.alert({
+						msg : err.msg
+					});
+				}
+			});
+		}
+
+		function getdata() {
+		      
+		    mstartLocation();
+			var memo_id = api.pageParam.id;
+			var get_memo_fromID = "/get_memorandum_fromID?id="
+			api.ajax({
+				url : serverAddr + get_memo_fromID + memo_id,
+				method : 'get',
+				cache : false,
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false
+			}, function(ret, err) {
+				//coding...
+
+				$api.byId("act_date").innerHTML = ret.array[0].day;
+				$api.byId("act_time").innerHTML = ret.array[0].hour + ":" + ret.array[0].min + ":" + "0";
+				$api.byId("location").innerHTML = ret.array[0].location;
+				$api.byId("details").innerHTML = ret.array[0].details;
+				$api.byId("lat2").innerHTML = ret.array[0].lat;
+				$api.byId("lon2").innerHTML = ret.array[0].lon;
+
+				
+				var lat2 = parseFloat($api.byId('lat').innerHTML);
+                var lon2 = parseFloat($api.byId('lon').innerHTML);
+                var distance = getGreatCircleDistance(ret.array[0].lat, ret.array[0].lon, lat2, lon2);
+                //alert(distance);
+                $api.byId("distance").innerHTML = distance+"米";
+			});
+		}
+
+		apiready = function() {
+			getdata();
+			openMap();
+		}
+    </script>
+</html>

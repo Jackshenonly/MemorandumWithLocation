@@ -21,6 +21,8 @@
                 <div class="input-wrap">
                     <table>
                         <tr>
+                            <td>日期：</td>
+                            <td><label id="act_date" class="txt"></label></td>
                             <td>时间：</td>
                             <td><label id="act_time" class="txt" onclick="setTime()">选取时间</label></td>
                         </tr>
@@ -33,6 +35,8 @@
                             <td>
                             <input id="location" placeholder="办事地点" class="txt" />
                             <i class="del" tapmode="" onclick="closeTimeSelecter(this)"></i></td>
+                            <td><img src="../image/local-l.png"  onclick="openMap()"/></td>
+                            <td><img src="../image/local.png"  onclick="closeMap()"/></td>
                         </tr>
                     </table>
                 </div>
@@ -60,6 +64,10 @@
                     <i class="del" tapmode="" onclick="closeTimeSelecter(this)"></i>
                 </div>
                 <a class="btn" tapmode="active" onclick="commit()">完成</a>
+                <div id="lon-lat">
+                    <label id="lon"></label>
+                    <label id="lat"></label>
+                </div>
             </div>
             <!--<textarea rows="5" cols="20" ></textarea>-->
         </div>
@@ -68,7 +76,106 @@
     <script type="text/javascript" src="../script/common.js"></script>
     <script type="text/javascript" src="../script/modifyPwd.js"></script>
     <script>
+    
+    function openMap(){
+    
+    var map = api.require('baiduMap');
+            map.open({
+                x : 20,
+                y : 20,
+                w : 320,
+                h : 300
+            }, function(ret, err) {
+                if (ret.status) {
+                    map.setCenter({
+                        lon : 120.386,
+                        lat : 30.319
+                    });
+                    //                  map.setMapListener(function(ret,err){
+                    //                      api.alert({msg:ret.lon+"*"+ret.lat});
+                    //                      });
+                    map.setZoomLevel({ level:18});
+                    map.setMapTapListener(function(ret, err) {
+                        //alert(JSON.stringify(ret) + JSON.stringify(err));
+                        lon = ret.lon;
+                        lat = ret.lat;
+                        $api.byId("lon").innerHTML = lon+"";
+                        $api.byId("lat").innerHTML = lat+"";      
+                        map.addAnnotations ({
+                            annoArray:[{id:1,lon:lon,lat:lat,title:'办事地点',subTitle:''},
+                                  ]
+                                    },function(ret,err){
+//                                      api.alert({msg:'点击了标记气泡'+ret.bubbleID});
+                                        });
+                        
+                        map.getNameFromLocation({
+                            lon : lon,
+                            lat : lat
+                        }, function(ret, err) {
+                            if (ret.status) {
+                            var address = ret.streetName+ret.streetNumber;
+//                          api.alert({ title : '搜索结果', msg : address});
+                            $api.byId("location").value = address;
+                            } else {
+                                api.alert({
+                                    title : '搜索错误代码',
+                                    msg : err.msg
+                                });
+                            }
+                        });
+                    });
+                }
+            });
+    
+    }
+
+    function closeMap()
+    {
+    var map = api.require('baiduMap'); 
+    map.close();    
+    
+    }
+    
+    function commit() {
+            
+            var username = $api.getStorage('uid');
+            var m_time = $api.byId('act_date').innerHTML +" "+ $api.byId("act_time").innerHTML;
+            var location = $api.byId("location").value;
+            var lon = $api.byId("lon").innerHTML;
+            var lat = $api.byId("lat").innerHTML;
+            var details =$api.byId("details").value; 
+            
+            var mystr = "m_time=" + m_time + "&username=" + username + "&location=" + location 
+                + "&lon=" + lon + "&lat=" + lat + "&details=" + details;
+            //alert(mystr);
+            var new_memorandum = '/new_memorandum?'
+            api.ajax({
+                url : serverAddr + new_memorandum + mystr,
+                method : 'post',
+                cache : false,
+                timeout : 30,
+                dataType : 'text',
+                returnAll : false,
+            }, function(ret, err) {
+                if (ret === '1') {
+                    api.alert({
+                        msg : '添加成功！'
+                    }, function(ret, err) {
+                        api.closeWin();
+                        //coding...
+                    });
+                } else {
+                    alert('添加失败！');
+                }
+            });
+        }
+    
+    
+    
 		apiready = function() {
+		
+		
+		
 			var obj = api.require('calendar');
 			obj.open({
 				x : 0,
@@ -78,12 +185,10 @@
 				specialDate : ['2015-05-01', '2015-05-11', '2015-05-20', '2015-05-25', '2015-05-31']
 			}, function(ret, err) {
 				var date = ret.date;
-				alert(date);
+				$api.byId("act_date").innerHTML=date;
 			});
 		}
 		var flag = 1;
-		var type = "";
-		var act_time = "";
 		function setTime() {
 			var time = $api.byId('act_time');
 			var obj = api.require('timeSelector');
@@ -111,55 +216,6 @@
 			delWord(el);
 		}
 
-		function act_selecter() {
-			var atype = ['娱乐', '运动', "学习", "拼桌", "电影", "游戏"];
-			api.actionSheet({
-				title : '选择活动类型',
-				cancelTitle : '我再想想',
-				//destructiveTitle: '红色警告按钮',
-				buttons : atype
-			}, function(ret, err) {
-				if (ret.buttonIndex == 7) {
-				} else {
-					var result = $api.byId("type");
-					type = atype[ret.buttonIndex - 1];
-					result.innerHTML = "<b>" + type + "</b>";
-					//getData(type[ret.buttonIndex-1]);
-					//api.alert({msg: '你刚点击了'+ret.buttonIndex });
-				}
-			});
-		}
-
-		function commit() {
-			var act_name = $api.byId('act_name').value;
-			var publisher = $api.getStorage('uid');
-			//var type = $api.byId('type').value;
-			//var act_time = $api.byId('act_time').value;
-			var location = $api.byId('location').value;
-			var details = $api.byId('details').value;
-			var mystr = "act_name=" + act_name + "&publisher=" + publisher + "&type=" + type + "&act_time=" + act_time + "&location=" + location + "&details=" + details;
-			//alert(mystr);
-			var publishUrl = '/act_publish?'
-			api.ajax({
-				url : serverAddr + publishUrl + mystr,
-				method : 'post',
-				cache : false,
-				timeout : 30,
-				dataType : 'text',
-				returnAll : false,
-			}, function(ret, err) {
-				if (ret === '1') {
-					api.alert({
-						title : '发布成功',
-						msg : '你可以在个人界面查看和修改！'
-					}, function(ret, err) {
-						api.closeWin();
-						//coding...
-					});
-				} else {
-					alert('发布失败！');
-				}
-			});
-		}
+		
     </script>
 </html>

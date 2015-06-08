@@ -209,7 +209,7 @@ def get_act_list():
     lon = int(request.args.get('lon').replace(".","")[:9])
     sql1 = "((lat-"+str(lat)+")*" + "(lat-"+str(lat)+")+"
     sql2 = "(lat-"+str(lat)+")*" + "(lat-"+str(lat)+")) as b"
-    print sql1,sql2 
+    
 
     if loc=='0':
         if hot=='0':
@@ -616,7 +616,116 @@ def reject():
     db.commit()
     return "1"
 
+@app.route("/new_memorandum",methods=['POST','GET'])
+def new_memorandum():
+    if request.method =='POST':
+        username = request.args.get('username')
+        m_time = request.args.get('m_time')
+        location = request.args.get('location')
+        lon =  request.args.get('lon')
+        lat =  request.args.get('lat')
+        details = request.args.get('details')
+        db = get_db()
+        db.cursor().execute("insert into memorandum(username,m_time,\
+            lon,lat,location,details) values(%s,%s,%s,%s,%s,%s)",\
+            [username,m_time,lon,lat,location,details])
+        db.commit()
+        return "1"
 
+    else:
+        return "0"
+
+@app.route("/get_memorandum",methods = ["POST",'GET'])
+def get_memorandum():
+    username = request.args.get('username')
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("select * from memorandum")
+    data = cursor.fetchall()
+    requesetData = {"array":[]}
+    for i in data:
+        item = {}
+        item["id"]       = i[0]
+        item["username"] = i[1]
+        item["m_time"] = str(i[2])
+        item["day"] = str(i[2])[:10]
+        item["hour"] = int(str(i[2])[11:13])
+        item["min"] = int(str(i[2])[14:16])
+        item["lon"]  = i[3]
+        item["lat"] = i[4]
+        item["location"] = i[5]
+        item["details"] = i[6]
+        item["flag"] = i[7]
+
+        requesetData['array'].append(item)
+    
+    return jsonify(requesetData)
+
+@app.route("/get_memorandum_fromID",methods = ["POST",'GET'])
+def get_memorandum_fromID():
+    memo_id = request.args.get('id')
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("select * from memorandum where id = %s",[memo_id])
+    data = cursor.fetchall()
+    requesetData = {"array":[]}
+    for i in data:
+        item = {}
+        item["id"]       = i[0]
+        item["username"] = i[1]
+        item["m_time"] = str(i[2])
+        item["day"] = str(i[2])[:10]
+        item["hour"] = int(str(i[2])[11:13])
+        item["min"] = int(str(i[2])[14:16])
+        item["lon"]  = i[3]
+        item["lat"] = i[4]
+        item["location"] = i[5]
+        item["details"] = i[6]
+        item["flag"] = i[7]
+
+        requesetData['array'].append(item)
+
+    
+    return jsonify(requesetData)
+
+@app.route("/get_memorandum_0",methods = ["POST",'GET'])
+def get_memorandum_0():
+    username = request.args.get('username')
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("select * from memorandum where flag = '未完成'")
+    data = cursor.fetchall()
+    requesetData = {"array":[]}
+    for i in data:
+        item = {}
+        item["id"]       = i[0]
+        item["username"] = i[1]
+        item["m_time"] = str(i[2])
+        item["day"] = str(i[2])[:10]
+        item["hour"] = int(str(i[2])[11:13])
+        item["min"] = int(str(i[2])[14:16])
+        item["lon"]  = i[3]
+        item["lat"] = i[4]
+        item["location"] = i[5]
+        item["details"] = i[6]
+        item["flag"] = i[7]
+
+        requesetData['array'].append(item)
+    
+    return jsonify(requesetData)
+
+
+@app.route("/finish_memorandum",methods = ["POST",'GET'])
+def finish_memorandum():
+    if request.method =="POST":
+        memo_id = request.args.get('id')
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("update memorandum  set flag = '完成' where id = %s",[memo_id])
+        db.commit()
+        return "1"
+    else:
+        return "0"
 if __name__ == '__main__':
     app.debug = True
     app.run('0.0.0.0',9000)

@@ -299,7 +299,7 @@ function act_selecter(){
 apiready = function () {
     getBanner(api.pageParam.tid);
     getData();
-    
+
     
     
     //pull to refresh
